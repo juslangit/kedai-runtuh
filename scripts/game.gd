@@ -24,14 +24,37 @@ extends Node3D
 # ---------------------------------------------------------------------------
 const CAFE := "res://assets/models/cafe_props/scene.gltf"
 
+## tier 0 = flat and forgiving, 1 = middling, 2 = tall and awkward.
+## The mix shifts towards the higher tiers as the tower grows.
 const ITEMS: Array[Dictionary] = [
-	{"name": "Plate",        "shape": "cylinder", "width": 1.00, "height": 0.16, "color": Color("f4f1ea"), "model": CAFE, "node": "Plate_big_Dishes_0"},
-	{"name": "Bowl",         "shape": "cylinder", "width": 0.90, "height": 0.42, "color": Color("e3d3b4"), "model": CAFE, "node": "Bowl_Sauces_0"},
-	{"name": "Cup",          "shape": "cylinder", "width": 0.80, "height": 0.60, "color": Color("c9863f"), "model": CAFE, "node": "Cup_002_Drinks_0"},
-	{"name": "Takeaway box", "shape": "box",      "width": 0.95, "height": 0.50, "color": Color("b5563c"), "model": CAFE, "node": "Carton_Food_0"},
-	{"name": "Fried egg",    "shape": "cylinder", "width": 1.05, "height": 0.22, "color": Color("f3e2b0"), "model": CAFE, "node": "Egg_Food_0"},
-	{"name": "Doughnut",     "shape": "cylinder", "width": 0.85, "height": 0.35, "color": Color("c98b4b"), "model": CAFE, "node": "Donut_brown_Food_0"},
+	{"name": "Plate",         "tier": 0, "shape": "cylinder", "width": 1.00, "height": 0.16, "color": Color("f4f1ea"), "model": CAFE, "node": "Plate_big_Dishes_0"},
+	{"name": "Small plate",   "tier": 0, "shape": "cylinder", "width": 0.88, "height": 0.14, "color": Color("f0ece2"), "model": CAFE, "node": "Plate_small_Dishes_0"},
+	{"name": "Food tray",     "tier": 0, "shape": "box",      "width": 1.05, "height": 0.15, "color": Color("d9cdb5"), "model": CAFE, "node": "Food_tray_Dishes_0"},
+	{"name": "Fried egg",     "tier": 0, "shape": "cylinder", "width": 1.05, "height": 0.22, "color": Color("f3e2b0"), "model": CAFE, "node": "Egg_Food_0"},
+	{"name": "Table sign",    "tier": 1, "shape": "box",      "width": 0.95, "height": 0.36, "color": Color("c8b48a"), "model": CAFE, "node": "Reserved_table_sign_Extra_objects_0"},
+	{"name": "Doughnut",      "tier": 1, "shape": "cylinder", "width": 0.85, "height": 0.35, "color": Color("c98b4b"), "model": CAFE, "node": "Donut_brown_Food_0"},
+	{"name": "Pink doughnut", "tier": 1, "shape": "cylinder", "width": 0.85, "height": 0.35, "color": Color("e8a0b4"), "model": CAFE, "node": "Donut_pink_Food_0"},
+	{"name": "Bowl",          "tier": 1, "shape": "cylinder", "width": 0.90, "height": 0.42, "color": Color("e3d3b4"), "model": CAFE, "node": "Bowl_Sauces_0"},
+	{"name": "Sauce bowl",    "tier": 1, "shape": "cylinder", "width": 0.86, "height": 0.40, "color": Color("dcc9a6"), "model": CAFE, "node": "Bowl_001_Sauces_0"},
+	{"name": "Burger bun",    "tier": 1, "shape": "cylinder", "width": 0.85, "height": 0.44, "color": Color("d79b52"), "model": CAFE, "node": "Burger_top_Food_0"},
+	{"name": "Service bell",  "tier": 1, "shape": "cylinder", "width": 0.80, "height": 0.42, "color": Color("cfa94e"), "model": CAFE, "node": "Bell_Extra_objects_0"},
+	{"name": "Little plant",  "tier": 2, "shape": "cylinder", "width": 0.85, "height": 0.46, "color": Color("7fa05a"), "model": CAFE, "node": "Plant_Extra_objects_0"},
+	{"name": "Takeaway box",  "tier": 2, "shape": "box",      "width": 0.95, "height": 0.50, "color": Color("b5563c"), "model": CAFE, "node": "Carton_Food_0"},
+	{"name": "Coffee cup",    "tier": 2, "shape": "cylinder", "width": 0.85, "height": 0.55, "color": Color("b8763c"), "model": CAFE, "node": "Cup_Drinks_0"},
+	{"name": "Cup",           "tier": 2, "shape": "cylinder", "width": 0.80, "height": 0.60, "color": Color("c9863f"), "model": CAFE, "node": "Cup_002_Drinks_0"},
+	{"name": "Tall cup",      "tier": 2, "shape": "cylinder", "width": 0.82, "height": 0.62, "color": Color("d1a05a"), "model": CAFE, "node": "Cup_001_Drinks_0"},
 ]
+
+## How likely each tier is, by how many pieces are already stacked. Flat things
+## early, awkward things once the tower is tall.
+const TIER_WEIGHTS := {
+	"early": [3.0, 2.0, 0.6],
+	"mid":   [1.5, 2.0, 1.5],
+	"late":  [0.6, 1.5, 2.5],
+}
+const EARLY_UNTIL := 5   ## pieces stacked below this count as "early"
+const MID_UNTIL := 11
+const RECENT_MEMORY := 3 ## do not offer anything from the last this-many drops
 
 # How the game feels. Tweak these first when something plays wrong.
 const DROP_HEIGHT := 1.4      ## how far above the tower the hook hangs
@@ -48,6 +71,8 @@ const WOBBLE_LEAN := 0.55     ## tower leaning more than this starts creaking
 const SLOWMO_SCALE := 0.32    ## how far time slows during the collapse
 const SHAKE_LAND := 0.035
 const SHAKE_COLLAPSE := 0.42
+const RIGHTING_START := 25.0  ## degrees of lean before a piece is nudged upright
+const RIGHTING_FORCE := 7.0   ## how hard that nudge is
 const DROP_TILT := 1.0        ## how much of the rope's lean the piece keeps once released
 const LANDING_TOLERANCE := 0.55 ## how far below the tower top still counts as "on top"
 const TABLE_TOP := 0.0        ## the table surface sits at y = 0
@@ -71,6 +96,9 @@ var _visuals := {}
 var shake := 0.0
 var _cam_base_y := 0.0
 var _creak_timer := 0.0
+
+## The last few items handed out, so the same thing does not keep appearing.
+var _recent: Array[String] = []
 
 @onready var hook: Node3D = $Hook
 @onready var rope: Node3D = $Rope
@@ -185,6 +213,29 @@ func _process(delta: float) -> void:
 			_resolve_landing()
 
 
+## Nudge a badly leaning piece back towards flat.
+##
+## Pieces can only rotate in the plane of the screen, so a plate turned on its
+## side is stable in a way a real plate never is — it cannot fall over sideways,
+## because sideways has been locked out. This puts back the force that the lock
+## removed: nothing below 25 degrees, then a push that grows the further past it
+## goes. Pieces still tilt and still look precarious; they just stop balancing on
+## their rim forever.
+func _physics_process(delta: float) -> void:
+	if state == State.OVER:
+		return  # a collapse should stay a mess
+	var start := deg_to_rad(RIGHTING_START)
+	for p in pieces.get_children():
+		var body: RigidBody3D = p
+		if body.freeze:
+			continue
+		var lean: float = body.rotation.z
+		var past: float = absf(lean) - start
+		if past <= 0.0:
+			continue
+		body.apply_torque(Vector3(0.0, 0.0, -signf(lean) * past * RIGHTING_FORCE * body.mass))
+
+
 ## A leaning tower groans. This is a warning, not decoration — it tells the player
 ## their next drop matters, and turns a sudden loss into one they saw coming.
 func _creak_if_leaning(delta: float) -> void:
@@ -253,17 +304,47 @@ func _follow_tower(delta: float) -> void:
 
 ## Pick the next piece of food and show it hanging from the hook.
 func _arm_next_item() -> void:
-	# Don't hand out the same thing twice in a row. A tower of five identical
-	# boxes looks like a bug even when it is only chance.
-	var pick: Dictionary = ITEMS[randi() % ITEMS.size()]
-	var tries := 0
-	while ITEMS.size() > 1 and pick.name == next_item.get("name", "") and tries < 8:
-		pick = ITEMS[randi() % ITEMS.size()]
-		tries += 1
-	next_item = pick
+	next_item = _pick_item()
 	_apply_visual(preview, next_item)
 	preview.show()
 	state = State.AIMING
+
+
+## Choose the next piece: weighted towards awkward shapes as the tower grows, and
+## never something handed out in the last few drops.
+func _pick_item() -> Dictionary:
+	var stacked := pieces.get_child_count()
+	var weights: Array = TIER_WEIGHTS.late
+	if stacked < EARLY_UNTIL:
+		weights = TIER_WEIGHTS.early
+	elif stacked < MID_UNTIL:
+		weights = TIER_WEIGHTS.mid
+
+	var pool: Array[Dictionary] = []
+	var total := 0.0
+	for item in ITEMS:
+		if item.name in _recent:
+			continue
+		pool.append(item)
+		total += float(weights[int(item.tier)])
+	if pool.is_empty():
+		pool = ITEMS.duplicate()
+		total = 0.0
+		for item in pool:
+			total += float(weights[int(item.tier)])
+
+	var roll := randf() * total
+	var chosen: Dictionary = pool[pool.size() - 1]
+	for item in pool:
+		roll -= float(weights[int(item.tier)])
+		if roll <= 0.0:
+			chosen = item
+			break
+
+	_recent.append(chosen.name)
+	while _recent.size() > RECENT_MEMORY:
+		_recent.pop_front()
+	return chosen
 
 
 ## Turn the hanging preview into a real falling object.
@@ -304,6 +385,7 @@ func _drop() -> void:
 	body.rotation.z = hook.angle * DROP_TILT
 
 	Audio.play("release", 1.05, 0.06, -6.0)
+	Haptics.tap()
 
 	active_piece = body
 	settle_timer = 0.0
@@ -332,6 +414,7 @@ func _resolve_landing() -> void:
 
 	# Small light things land higher and sharper than big heavy ones.
 	Audio.play("land", clampf(1.5 - float(next_item.height), 0.8, 1.35), 0.08)
+	Haptics.land()
 	shake = maxf(shake, SHAKE_LAND)
 
 	score += PERFECT_POINTS if perfect else 1
@@ -366,6 +449,7 @@ func _game_over(reason: String) -> void:
 	if reason == "MISSED!":
 		Audio.play("miss", 1.0, 0.02, -5.0)
 	Audio.play_crash()
+	Haptics.collapse()
 	shake = SHAKE_COLLAPSE
 	Engine.time_scale = SLOWMO_SCALE
 
@@ -427,6 +511,7 @@ func _refresh_sound_button() -> void:
 ## A white blink and a word, for landing it dead centre.
 func _celebrate_perfect() -> void:
 	Audio.play("perfect", 1.0, 0.02)
+	Haptics.perfect()
 	shake = maxf(shake, 0.05)
 
 	var flash: ColorRect = $UI/Hud/Flash

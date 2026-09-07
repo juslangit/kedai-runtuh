@@ -12,6 +12,8 @@ const SAVE_PATH := "user://kedai_runtuh.cfg"
 
 var high_score := 0
 var sound_on := true
+## Kept separate from sound: a muted phone in public should still buzz.
+var haptics_on := true
 
 
 func _ready() -> void:
@@ -38,6 +40,11 @@ func toggle_sound() -> void:
 	set_sound(not sound_on)
 
 
+func set_haptics(on: bool) -> void:
+	haptics_on = on
+	save_all()
+
+
 ## Mutes the master bus. There is no audio in the game yet, so today this changes
 ## nothing you can hear — but it is wired to the real thing, so the moment any
 ## sound is added the toggle already works.
@@ -53,10 +60,12 @@ func load_all() -> void:
 		return
 	high_score = int(cfg.get_value("score", "best", 0))
 	sound_on = bool(cfg.get_value("settings", "sound", true))
+	haptics_on = bool(cfg.get_value("settings", "haptics", true))
 
 
 func save_all() -> void:
 	var cfg := ConfigFile.new()
 	cfg.set_value("score", "best", high_score)
 	cfg.set_value("settings", "sound", sound_on)
+	cfg.set_value("settings", "haptics", haptics_on)
 	cfg.save(SAVE_PATH)

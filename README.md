@@ -119,13 +119,32 @@ Open `scripts/game.gd`. At the top there is a list called `ITEMS`. Add a line:
 - `height` — how tall the piece is in metres
 - `model` — the imported file the mesh comes from
 - `node` — the name of the object inside that file
+- `tier` — `0` flat and forgiving, `1` middling, `2` tall and awkward. The mix
+  shifts towards the higher tiers as the tower grows (`TIER_WEIGHTS`)
 - `color` — only used if there is no model
 
 **`width` and `height` are the real physics box. The model is scaled to fit them,
 not the other way round** — so swapping a model never changes how the game plays.
 Leave `model` as `""` and you get a plain coloured shape instead.
 
-Nothing else needs changing. That is the only place food is defined.
+Nothing else needs changing. That is the only place food is defined. There are
+**16 items**, drawn from a pack containing about 60 objects, so there is plenty
+left to add and it costs nothing extra to download — the meshes and textures are
+already in the build.
+
+The last **3** items handed out are never offered again (`RECENT_MEMORY`), so the
+same thing does not keep reappearing.
+
+### Vibration
+
+`scripts/haptics.gd` — a short tick when you release, a firmer one on landing, a
+double on PERFECT, and a long heavy buzz when the tower goes over. All the
+durations are constants at the top of that file.
+
+It does nothing on desktop, and it is **deliberately separate from the SOUND
+toggle**: people mute a game in public and still want to feel it. The setting is
+saved as `haptics` alongside the sound setting, so adding a button for it later is
+a one-liner.
 
 ### Finding the object name inside a model file
 
@@ -154,6 +173,9 @@ comment on each one:
 | `SETTLE_TIME` | How long a piece must sit still before it scores | Lower it if scoring feels sluggish |
 | `PERFECT_WINDOW` | How close to the centre below counts as a perfect landing | Raise it if PERFECT never happens, lower it if it always does |
 | `WOBBLE_LEAN` | How far the tower must lean before it starts creaking | Lower it for more tension, raise it for fewer false alarms |
+| `RIGHTING_START` | Degrees of lean before a piece is nudged back towards flat | Raise it to allow wilder angles |
+| `RIGHTING_FORCE` | How hard that nudge is | 0 disables it entirely; higher gives tidier towers |
+| `EARLY_UNTIL` / `MID_UNTIL` | Piece counts where the item mix shifts towards awkward shapes | Lower them to make the shift happen sooner |
 | `SLOWMO_SCALE` | How far time slows during the collapse | Lower for more drama, 1.0 for none |
 | `GAME_OVER_DELAY` | Real seconds spent watching the collapse before the panel | Raise it for better video clips, lower for faster retries |
 | `MAX_DROP_TIME` | Give up waiting and judge the piece anyway | This is a safety net. If it fires often, `SETTLE_SPEED` is too low |
