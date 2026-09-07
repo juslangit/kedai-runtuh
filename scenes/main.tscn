@@ -4,6 +4,8 @@
 [ext_resource type="Script" path="res://scripts/hook.gd" id="2_hook"]
 [ext_resource type="PackedScene" path="res://assets/models/kitchen/scene.gltf" id="3_kitchen"]
 [ext_resource type="Script" path="res://scripts/rope.gd" id="4_rope"]
+[ext_resource type="PackedScene" path="res://assets/models/table/scene.gltf" id="5_table"]
+[ext_resource type="Script" path="res://scripts/fit_model.gd" id="6_fit"]
 
 [sub_resource type="Environment" id="Env_1"]
 background_mode = 1
@@ -50,15 +52,8 @@ albedo_color = Color(0.180392, 0.152941, 0.141176, 1)
 metallic = 0.4
 roughness = 0.55
 
-[sub_resource type="BoxMesh" id="Mesh_table"]
-size = Vector3(5, 0.5, 3)
-
 [sub_resource type="BoxShape3D" id="Shape_table"]
 size = Vector3(5, 0.5, 3)
-
-[sub_resource type="StandardMaterial3D" id="Mat_table"]
-albedo_color = Color(0.352941, 0.235294, 0.164706, 1)
-roughness = 0.85
 
 [node name="Main" type="Node3D"]
 script = ExtResource("1_game")
@@ -96,12 +91,16 @@ transform = Transform3D(-6, 0, 0, 0, 6, 0, 0, 0, -6, 0, -3, 0)
 
 [node name="Room" parent="Kitchen" instance=ExtResource("3_kitchen")]
 
+[node name="TableModel" type="Node3D" parent="."]
+script = ExtResource("6_fit")
+target_width = 5.0
+target_height = 3.0
+target_top_y = 0.0
+
+[node name="Model" parent="TableModel" instance=ExtResource("5_table")]
+
 [node name="Table" type="StaticBody3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.25, 0)
-
-[node name="MeshInstance3D" type="MeshInstance3D" parent="Table"]
-mesh = SubResource("Mesh_table")
-material_override = SubResource("Mat_table")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Table"]
 shape = SubResource("Shape_table")

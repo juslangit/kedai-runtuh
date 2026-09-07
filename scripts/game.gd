@@ -36,12 +36,13 @@ const ITEMS: Array[Dictionary] = [
 # How the game feels. Tweak these first when something plays wrong.
 const DROP_HEIGHT := 1.4      ## how far above the tower the hook hangs
 const FALL_MARGIN := 1.8      ## fall this far below the table and it is gone
-const SETTLE_SPEED := 0.30    ## slower than this counts as "stopped moving"
-const SETTLE_TIME := 0.35     ## must stay still this long before it counts
-const MAX_DROP_TIME := 5.0    ## give up waiting after this and judge it anyway
+const SETTLE_SPEED := 0.55    ## slower than this counts as "stopped moving"
+const SETTLE_TIME := 0.30     ## must stay still this long before it counts
+const MAX_DROP_TIME := 2.5    ## give up waiting after this and judge it anyway
 const LIVE_PIECES := 2        ## how many pieces at the top stay physically live
 const GAME_OVER_DELAY := 1.2  ## seconds to watch the tower fall before the panel shows
 const ANCHOR_HEIGHT := 5.2    ## how high above the tower the rope is pinned
+const DROP_TILT := 1.0        ## how much of the rope's lean the piece keeps once released
 const LANDING_TOLERANCE := 0.55 ## how far below the tower top still counts as "on top"
 const TABLE_TOP := 0.0        ## the table surface sits at y = 0
 
@@ -136,17 +137,19 @@ func _process(delta: float) -> void:
 ## from too low down, sometimes inside the tower.
 func _follow_tower(delta: float) -> void:
 	camera_rig.position.y = lerp(camera_rig.position.y, highest_y + 1.5, delta * 3.0)
-	hook.position.y = highest_y + DROP_HEIGHT
-
 	# The rope hangs from a fixed point straight above the middle of the table.
-	# Only its bottom end moves, because only the hook moves.
+	# Only its bottom end moves, because the hook swings around this pivot.
 	pivot.position = Vector3(0.0, highest_y + ANCHOR_HEIGHT, 0.0)
+	hook.pivot = pivot.position
+	hook.length = ANCHOR_HEIGHT - DROP_HEIGHT
 	# End the rope at the TOP of whatever is hanging, not at its middle, so it
 	# looks tied on rather than skewered through.
 	var tie_on := 0.0
 	if state == State.AIMING and not next_item.is_empty():
 		tie_on = float(next_item.height) * 0.5
-	rope.set_endpoints(pivot.position, hook.global_position + Vector3(0.0, tie_on, 0.0))
+	# Along the rope's own direction, not straight up, now that the hook leans.
+	rope.set_endpoints(pivot.position,
+			hook.global_position + hook.global_transform.basis.y * tie_on)
 
 
 ## Pick the next piece of food and show it hanging from the hook.
@@ -197,7 +200,9 @@ func _drop() -> void:
 	body.add_child(shape_node)
 
 	pieces.add_child(body)
-	body.global_position = preview.global_position
+	body.global_position = hook.global_position
+	# How much of the hanging lean the piece keeps once it is let go.
+	body.rotation.z = hook.angle * DROP_TILT
 
 	active_piece = body
 	settle_timer = 0.0

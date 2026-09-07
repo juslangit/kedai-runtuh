@@ -19,8 +19,15 @@ Used for: pinggan, mangkuk, cawan, kotak bungkus, telur mata, kuih keria.
 
 Used for: the kitchen the game is played in.
 
+> This work is based on ["Wooden table (low poly)"](https://sketchfab.com/3d-models/wooden-table-low-poly-ab96499ddb3b4bd7bc739e4f99dad409)
+> by [Andrey 3D](https://sketchfab.com/Andrey3Ds) licensed under
+> [CC-BY-4.0](http://creativecommons.org/licenses/by/4.0/)
+
+Used for: the table the tower is built on.
+
 Original licence texts as downloaded are kept next to each model, at
-`assets/models/cafe_props/license.txt` and `assets/models/kitchen/license.txt`.
+`assets/models/cafe_props/license.txt`, `assets/models/kitchen/license.txt` and
+`assets/models/table/license.txt`.
 
 ## Engine
 

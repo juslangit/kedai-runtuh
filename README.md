@@ -31,7 +31,9 @@ On desktop, tap = left mouse click, or press **Space**.
 project.godot        engine settings — portrait size, gravity
 scenes/main.tscn     the only scene: camera, light, table, hook, UI
 scripts/game.gd      the whole game, and the list of food
-scripts/hook.gd      the swinging hook (about 15 lines)
+scripts/hook.gd      the pendulum the food hangs from
+scripts/rope.gd      the rope: a simulated rope, decoration only
+scripts/fit_model.gd scales a decorative model to line up with the game
 assets/models/       Sketchfab .glb files go here
 ```
 
@@ -76,10 +78,17 @@ comment on each one:
 
 | Constant | What it does | Try this if... |
 |---|---|---|
-| `DROP_HEIGHT` | How far above the tower the hook hangs | Lower it if pieces smash the tower apart on landing |
+| `DROP_HEIGHT` | How far above the tower the hook hangs at the bottom of its swing | Lower it if pieces smash the tower apart on landing |
+| `ANCHOR_HEIGHT` | How high above the tower the rope is pinned. The gap between this and `DROP_HEIGHT` is the pendulum's length | Raise it for a longer, lazier swing |
+| `DROP_TILT` | How much of the rope's lean a piece keeps once released. `1.0` = what you see hanging is what you drop; `0.0` = always released upright | Lower it if tilted drops feel unfair |
 | `LIVE_PIECES` | How many pieces at the top stay physically live | Raise it for bigger, messier collapses; lower it for a steadier tower |
 | `LANDING_TOLERANCE` | How far below the top still counts as landed | Raise it if fair-looking drops are being called a miss |
+| `SETTLE_SPEED` | How slow a piece must be moving to count as stopped | **Raise it if the game pauses after each drop.** Too low and every drop waits out `MAX_DROP_TIME` |
 | `SETTLE_TIME` | How long a piece must sit still before it scores | Lower it if scoring feels sluggish |
+| `MAX_DROP_TIME` | Give up waiting and judge the piece anyway | This is a safety net. If it fires often, `SETTLE_SPEED` is too low |
+
+The swing itself lives in `scripts/hook.gd`: `swing_degrees` is how far it swings
+either side of straight down, `base_speed` how fast it starts.
 
 Gravity lives in `project.godot` under `[physics]` — lower gravity means a slower,
 gentler fall.

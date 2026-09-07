@@ -10,7 +10,8 @@ extends Node3D
 ## change how the game plays — tune them until it looks right.
 
 @export var segments := 16        ## more = smoother rope, slightly more work
-@export var thickness := 0.045
+@export var thickness := 0.06
+@export var twist_per_metre := 7.0  ## how tightly the strands wind along the rope
 @export var rope_gravity := 15.0  ## how heavily it hangs
 @export var damping := 0.86       ## lower = the wobble dies out faster
 @export var slack := 1.012       ## rope is this much longer than the straight line
@@ -23,6 +24,7 @@ var _anchor := Vector3.ZERO
 var _tip := Vector3.ZERO
 var _seg_len := 0.25
 var _started := false
+var _rope_material: StandardMaterial3D
 
 
 func _ready() -> void:
@@ -30,11 +32,17 @@ func _ready() -> void:
 	mesh.top_radius = thickness
 	mesh.bottom_radius = thickness
 	mesh.height = 1.0
-	mesh.radial_segments = 6
+	mesh.radial_segments = 8
 	mesh.rings = 0
+
 	var mat := StandardMaterial3D.new()
-	mat.albedo_color = Color(0.243, 0.196, 0.176)
-	mat.roughness = 1.0
+	mat.albedo_texture = _make_rope_texture()
+	mat.roughness = 0.95
+	# The texture is one turn of the twist. Repeating it along the segment is
+	# what makes the strands wind; the diagonal lines up across repeats because
+	# it advances exactly one turn per tile.
+	mat.uv1_scale = Vector3(1.0, 1.0, 1.0)
+	_rope_material = mat
 
 	for i in segments:
 		var link := MeshInstance3D.new()
@@ -52,9 +60,43 @@ func set_endpoints(anchor: Vector3, tip: Vector3) -> void:
 	_anchor = anchor
 	_tip = tip
 	_seg_len = maxf(anchor.distance_to(tip) * slack, 0.01) / float(segments)
+	if _rope_material != null:
+		_rope_material.uv1_scale = Vector3(1.0, _seg_len * twist_per_metre, 1.0)
 	if not _started:
 		_snap_straight()
 		_started = true
+
+
+## A twisted-strand rope, drawn once into a small texture.
+##
+## The bands run diagonally: one full turn around the rope for one step along it.
+## Wrapped onto a cylinder that reads as strands winding around each other, and
+## because the diagonal advances exactly one turn per tile it stays continuous
+## however many times the texture repeats.
+func _make_rope_texture() -> ImageTexture:
+	const W := 48
+	const H := 48
+	var groove := Color(0.353, 0.243, 0.141)
+	var body := Color(0.663, 0.510, 0.318)
+	var highlight := Color(0.816, 0.682, 0.459)
+
+	var img := Image.create(W, H, false, Image.FORMAT_RGB8)
+	for y in H:
+		for x in W:
+			var strand := fposmod(float(x) / float(W) + float(y) / float(H), 1.0)
+			var c: Color
+			if strand < 0.10:
+				c = groove            # the gap between two strands
+			elif strand < 0.30:
+				c = body.lerp(groove, 0.45)
+			elif strand < 0.62:
+				c = body
+			elif strand < 0.80:
+				c = highlight         # the lit crown of the strand
+			else:
+				c = body.lerp(groove, 0.25)
+			img.set_pixel(x, y, c)
+	return ImageTexture.create_from_image(img)
 
 
 ## Lay the rope out in a straight line — used once, before it has any history.
