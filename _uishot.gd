@@ -42,7 +42,7 @@ func _ready() -> void:
 	main._resume()
 
 	# 4. game over
-	main._game_over("RUNTUH!")
+	main._game_over("TOPPLED!")
 	for i in 200: await get_tree().process_frame
 	await _shot("ui_gameover")
 

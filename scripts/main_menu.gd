@@ -13,6 +13,9 @@ func _ready() -> void:
 	sound_button.pressed.connect(_on_sound)
 	$UI/Root/Layout/Quit.pressed.connect(_on_quit)
 
+	Audio.wire_buttons(ui)
+	Audio.start_music()
+
 	best_label.text = "BEST  %d" % SaveData.high_score
 	_refresh_sound()
 	$UI/Root/Layout/Play.grab_focus()

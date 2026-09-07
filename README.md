@@ -77,6 +77,15 @@ replaced, so the layout does not shift when the art goes in.
 | **TOPPLED!** | A piece fell off the table — the tower went over |
 | **MISSED!** | A piece came to rest too far below the top — you missed the tower |
 
+Land close to the centre of the piece below and you get a **PERFECT** — a chime, a
+flash, and two points instead of one. When the tower starts leaning badly it
+creaks and the camera trembles, so a collapse is something you can hear coming.
+
+When you do lose, time drops to about a third, the camera shakes, the dishes go
+over in waves, and it holds on the wreckage for a beat before the score appears.
+That moment is the one people record, so it is deliberately the loudest thing in
+the game.
+
 ---
 
 ## Where everything is
@@ -143,6 +152,10 @@ comment on each one:
 | `LANDING_TOLERANCE` | How far below the top still counts as landed | Raise it if fair-looking drops are being called a miss |
 | `SETTLE_SPEED` | How slow a piece must be moving to count as stopped | **Raise it if the game pauses after each drop.** Too low and every drop waits out `MAX_DROP_TIME` |
 | `SETTLE_TIME` | How long a piece must sit still before it scores | Lower it if scoring feels sluggish |
+| `PERFECT_WINDOW` | How close to the centre below counts as a perfect landing | Raise it if PERFECT never happens, lower it if it always does |
+| `WOBBLE_LEAN` | How far the tower must lean before it starts creaking | Lower it for more tension, raise it for fewer false alarms |
+| `SLOWMO_SCALE` | How far time slows during the collapse | Lower for more drama, 1.0 for none |
+| `GAME_OVER_DELAY` | Real seconds spent watching the collapse before the panel | Raise it for better video clips, lower for faster retries |
 | `MAX_DROP_TIME` | Give up waiting and judge the piece anyway | This is a safety net. If it fires often, `SETTLE_SPEED` is too low |
 
 The swing itself lives in `scripts/hook.gd`: `swing_degrees` is how far it swings

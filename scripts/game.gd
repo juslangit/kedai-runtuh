@@ -40,8 +40,14 @@ const SETTLE_SPEED := 0.55    ## slower than this counts as "stopped moving"
 const SETTLE_TIME := 0.30     ## must stay still this long before it counts
 const MAX_DROP_TIME := 2.5    ## give up waiting after this and judge it anyway
 const LIVE_PIECES := 2        ## how many pieces at the top stay physically live
-const GAME_OVER_DELAY := 1.2  ## seconds to watch the tower fall before the panel shows
+const GAME_OVER_DELAY := 1.9  ## real seconds to watch the tower fall before the panel
 const ANCHOR_HEIGHT := 5.2    ## how high above the tower the rope is pinned
+const PERFECT_WINDOW := 0.28  ## land this close to the centre below and it is a PERFECT
+const PERFECT_POINTS := 2     ## what a perfect landing is worth instead of 1
+const WOBBLE_LEAN := 0.55     ## tower leaning more than this starts creaking
+const SLOWMO_SCALE := 0.32    ## how far time slows during the collapse
+const SHAKE_LAND := 0.035
+const SHAKE_COLLAPSE := 0.42
 const DROP_TILT := 1.0        ## how much of the rope's lean the piece keeps once released
 const LANDING_TOLERANCE := 0.55 ## how far below the tower top still counts as "on top"
 const TABLE_TOP := 0.0        ## the table surface sits at y = 0
@@ -60,6 +66,11 @@ var active_piece: RigidBody3D = null
 ## name -> {mesh, transform} for every item that has a model, worked out once at
 ## startup so a piece can be built without touching the source file again.
 var _visuals := {}
+
+## Camera shake, and the height the camera would sit at without it.
+var shake := 0.0
+var _cam_base_y := 0.0
+var _creak_timer := 0.0
 
 @onready var hook: Node3D = $Hook
 @onready var rope: Node3D = $Rope
@@ -103,6 +114,11 @@ func _ready() -> void:
 	pause_sound_button.pressed.connect(_toggle_sound)
 	$UI/GameOver/Center/Panel/Box/Again.pressed.connect(_restart)
 	$UI/GameOver/Center/Panel/Box/MainMenu.pressed.connect(_to_main_menu)
+
+	_cam_base_y = camera_rig.position.y
+	Engine.time_scale = 1.0
+	Audio.wire_buttons(ui)
+	Audio.start_music()
 
 	_arm_next_item()
 
@@ -148,6 +164,8 @@ func _process(delta: float) -> void:
 				_game_over("TOPPLED!")
 			return
 
+	_creak_if_leaning(delta)
+
 	if state != State.DROPPING or active_piece == null:
 		return
 
@@ -167,12 +185,57 @@ func _process(delta: float) -> void:
 			_resolve_landing()
 
 
+## A leaning tower groans. This is a warning, not decoration — it tells the player
+## their next drop matters, and turns a sudden loss into one they saw coming.
+func _creak_if_leaning(delta: float) -> void:
+	if state == State.OVER or pieces.get_child_count() < 2:
+		return
+	if _tower_lean() <= WOBBLE_LEAN:
+		_creak_timer = 0.0
+		return
+	_creak_timer -= delta
+	if _creak_timer <= 0.0:
+		_creak_timer = randf_range(0.5, 0.95)
+		Audio.play("creak", randf_range(0.5, 0.7), 0.05, -9.0)
+		shake = maxf(shake, 0.018)
+
+
+## How far the top of the tower has wandered sideways from its base.
+func _tower_lean() -> float:
+	var kids := pieces.get_children()
+	if kids.size() < 2:
+		return 0.0
+	var top := _highest_piece(null)
+	if top == null:
+		return 0.0
+	return absf(_world_box(top).get_center().x - _world_box(kids[0]).get_center().x)
+
+
+## The piece currently on top, ignoring one that is still being judged.
+func _highest_piece(exclude) -> RigidBody3D:
+	var best: RigidBody3D = null
+	var best_top := -INF
+	for p in pieces.get_children():
+		if p == exclude:
+			continue
+		var b := _world_box(p)
+		if b.position.y + b.size.y > best_top:
+			best_top = b.position.y + b.size.y
+			best = p
+	return best
+
+
 ## The camera glides up to the top of the tower. The hook does NOT glide — it
 ## snaps, so the piece always falls from exactly DROP_HEIGHT above the stack.
 ## When the hook glided too, tapping quickly after a landing spawned the piece
 ## from too low down, sometimes inside the tower.
 func _follow_tower(delta: float) -> void:
-	camera_rig.position.y = lerp(camera_rig.position.y, highest_y + 1.5, delta * 3.0)
+	_cam_base_y = lerp(_cam_base_y, highest_y + 1.5, delta * 3.0)
+	shake = move_toward(shake, 0.0, delta * 1.6)
+	camera_rig.position = Vector3(
+			randf_range(-shake, shake),
+			_cam_base_y + randf_range(-shake, shake),
+			0.0)
 	# The rope hangs from a fixed point straight above the middle of the table.
 	# Only its bottom end moves, because the hook swings around this pivot.
 	pivot.position = Vector3(0.0, highest_y + ANCHOR_HEIGHT, 0.0)
@@ -240,6 +303,8 @@ func _drop() -> void:
 	# How much of the hanging lean the piece keeps once it is let go.
 	body.rotation.z = hook.angle * DROP_TILT
 
+	Audio.play("release", 1.05, 0.06, -6.0)
+
 	active_piece = body
 	settle_timer = 0.0
 	drop_timer = 0.0
@@ -259,15 +324,29 @@ func _resolve_landing() -> void:
 		_game_over("MISSED!")
 		return
 
-	score += 1
+	# Landing dead centre on the piece below is a PERFECT, and worth double.
+	var perfect := false
+	var below := _highest_piece(active_piece)
+	if below != null:
+		perfect = absf(box.get_center().x - _world_box(below).get_center().x) <= PERFECT_WINDOW
+
+	# Small light things land higher and sharper than big heavy ones.
+	Audio.play("land", clampf(1.5 - float(next_item.height), 0.8, 1.35), 0.08)
+	shake = maxf(shake, SHAKE_LAND)
+
+	score += PERFECT_POINTS if perfect else 1
 	score_label.text = str(score)
 	hint_label.hide()
+	if perfect:
+		_celebrate_perfect()
+
 	# Measured fresh every time, so the tower height drops back down if the
 	# stack settles instead of getting stuck at an old high-water mark.
 	highest_y = max(tower_top, box.position.y + box.size.y)
 
-	# The swing gets faster the higher you go. This is the whole difficulty curve.
-	hook.speed = hook.base_speed + min(score, 30) * 0.055
+	# The swing gets faster the higher you go — counted in PIECES, not points, so
+	# that changing what a perfect is worth never changes the difficulty curve.
+	hook.speed = hook.base_speed + min(pieces.get_child_count(), 30) * 0.055
 
 	_settle_tower()
 	active_piece = null
@@ -280,6 +359,15 @@ func _game_over(reason: String) -> void:
 	preview.hide()
 	pause_button.hide()
 	_collapse_tower()
+
+	# The collapse is the moment people record, so it gets the full treatment:
+	# time slows, the camera shakes, and the dishes go in waves rather than one
+	# tidy thud.
+	if reason == "MISSED!":
+		Audio.play("miss", 1.0, 0.02, -5.0)
+	Audio.play_crash()
+	shake = SHAKE_COLLAPSE
+	Engine.time_scale = SLOWMO_SCALE
 
 	# The record lives in SaveData, not in this scene, so restarting cannot
 	# reset it — a fresh scene simply reads the same stored number back.
@@ -294,7 +382,9 @@ func _game_over(reason: String) -> void:
 
 	# Let the tower actually go over before the panel covers it. This second and
 	# a bit is the shot people record, so it is worth waiting for.
-	await get_tree().create_timer(GAME_OVER_DELAY).timeout
+	# ignore_time_scale, or the slow motion would stretch this wait too.
+	await get_tree().create_timer(GAME_OVER_DELAY, true, false, true).timeout
+	Engine.time_scale = 1.0
 	if is_inside_tree():
 		game_over_panel.show()
 		$UI/GameOver/Center/Panel/Box/Again.grab_focus()
@@ -314,11 +404,13 @@ func _pause() -> void:
 
 
 func _resume() -> void:
+	Engine.time_scale = 1.0
 	get_tree().paused = false
 	pause_menu.hide()
 
 
 func _to_main_menu() -> void:
+	Engine.time_scale = 1.0
 	get_tree().paused = false
 	get_tree().change_scene_to_file("res://scenes/main_menu.tscn")
 
@@ -330,6 +422,23 @@ func _toggle_sound() -> void:
 
 func _refresh_sound_button() -> void:
 	pause_sound_button.text = "SOUND  %s" % ("ON" if SaveData.sound_on else "OFF")
+
+
+## A white blink and a word, for landing it dead centre.
+func _celebrate_perfect() -> void:
+	Audio.play("perfect", 1.0, 0.02)
+	shake = maxf(shake, 0.05)
+
+	var flash: ColorRect = $UI/Hud/Flash
+	var flash_tween := create_tween()
+	flash_tween.tween_property(flash, "color:a", 0.30, 0.04)
+	flash_tween.tween_property(flash, "color:a", 0.0, 0.32)
+
+	var label: Label = $UI/Hud/Perfect
+	label.modulate.a = 1.0
+	var label_tween := create_tween()
+	label_tween.tween_interval(0.35)
+	label_tween.tween_property(label, "modulate:a", 0.0, 0.45)
 
 
 ## Losing unsticks the whole tower and gives it a shove, so every run ends with
@@ -352,6 +461,7 @@ func _collapse_tower() -> void:
 
 
 func _restart() -> void:
+	Engine.time_scale = 1.0
 	get_tree().paused = false
 	get_tree().reload_current_scene()
 

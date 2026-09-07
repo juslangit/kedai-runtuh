@@ -29,6 +29,22 @@ Original licence texts as downloaded are kept next to each model, at
 `assets/models/cafe_props/license.txt`, `assets/models/kitchen/license.txt` and
 `assets/models/table/license.txt`.
 
+## Audio
+
+All audio is **CC0 1.0 Universal** — public domain. Commercial use is allowed and
+**no attribution is required**. It is listed here anyway, because knowing where a
+file came from matters more than the licence strictly demands.
+
+| Sound | Source | Licence |
+|---|---|---|
+| Music — *Ramen* | [HoliznaCC0](https://freemusicarchive.org/music/holiznacc0/lo-fi-and-chill), from the album *Lo-fi And Chill* | CC0 1.0 |
+| Landing, collapse, creak | [Kenney — Impact Sounds](https://kenney.nl/assets/impact-sounds) | CC0 1.0 |
+| Button click, release, perfect, miss | [Kenney — Interface Sounds](https://kenney.nl/assets/interface-sounds) | CC0 1.0 |
+
+Because everything is CC0, none of it restricts selling the game, and none of it
+has to be credited on a store page. That was the reason for choosing CC0 sources
+over the many "free" ones that quietly require attribution.
+
 ## Engine
 
 Built with [Godot Engine](https://godotengine.org) (MIT licence).
