@@ -231,6 +231,37 @@ Android). `export_presets.cfg` *is* committed, and holds no secrets.
 > and cannot be used to publish to the Play Store — that needs a release key you
 > generate yourself and never commit or lose.
 
+### Testing on the Mac: the emulator does not work
+
+The Android emulator was set up and tried in four configurations — Vulkan on
+automatic, host and software GPU, and GL Compatibility on host and software. The
+app installs and launches every time, and Godot's own log shows the engine
+starting, but **nothing renders**. On Apple Silicon the emulator's Vulkan support
+cannot create a surface, and its OpenGL ES fails Godot's context check.
+
+So there is no working way to test the APK on this Mac. The two real options are:
+
+- **The game itself:** press F5 in Godot. That is the same game, on a desktop
+  renderer and a mouse instead of a thumb.
+- **The APK:** put it on a real phone. That is the only test that means anything
+  anyway — the emulator would have told you nothing about touch or frame rate.
+
+The virtual device is still there if you want it (`kedai_phone`, about 10 GB). To
+remove it:
+
+```bash
+/opt/homebrew/share/android-commandlinetools/cmdline-tools/latest/bin/avdmanager delete avd -n kedai_phone
+```
+
+### A trap in project.godot
+
+`project.godot` is a Godot config file and takes `;` for comments, **not `#`**. A
+`#` comment silently swallows the setting on the line after it. Adding a `#`
+comment above `textures/vram_compression/import_etc2_astc=true` removed that
+setting, and since the Vulkan mobile renderer requires it, the Android export
+started failing with only "configuration errors" and no explanation. If an export
+suddenly breaks, look for comments in `project.godot` first.
+
 ### Keeping the download small
 
 The APK started at **84 MB**, of which **44 MB was the table's textures** — a
