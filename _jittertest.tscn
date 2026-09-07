@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://_jittertest.gd" id="1_j"]
+
+[node name="JitterTest" type="Node"]
+script = ExtResource("1_j")

@@ -34,12 +34,13 @@ window/handheld/orientation=1
 [physics]
 
 3d/default_gravity=11.0
+3d/sleep_threshold_linear=0.25
+3d/sleep_threshold_angular=0.5
+3d/time_before_sleep=0.3
 
 [rendering]
 
 renderer/rendering_method.mobile="gl_compatibility"
-
-
 textures/vram_compression/import_etc2_astc=true
 anti_aliasing/quality/msaa_3d=2
 anti_aliasing/quality/msaa_3d.mobile=0

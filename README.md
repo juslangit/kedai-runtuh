@@ -135,6 +135,28 @@ already in the build.
 The last **3** items handed out are never offered again (`RECENT_MEMORY`), so the
 same thing does not keep reappearing.
 
+### Why the tower goes quiet
+
+Two rigid bodies resting on each other never quite stop; they grind at a speed too
+small to read as movement but big enough to look like a buzz. Godot only puts a
+body to sleep once it drops below `sleep_threshold_linear` / `_angular`, and the
+default thresholds sat *just under* the speed this stack idles at — so pieces
+buzzed forever instead of settling.
+
+Three things fix it, all of them worth keeping:
+
+1. **`_settle_tower()` puts every settled piece to sleep.** Godot wakes a sleeping
+   body the instant anything touches it, so the next landing still knocks the tower
+   about exactly as before. Verified: 4 of 4 pieces asleep, then a landing wakes
+   them and the stack reacts.
+2. **The sleep thresholds in `project.godot` are raised** so a nearly-still piece
+   actually qualifies as still.
+3. **The righting nudge only ever touches the piece currently falling**, never a
+   settled tower, and it has a damping term so it cannot oscillate.
+
+Measured on an untouched tower over four seconds: worst angular velocity **0.000**,
+pieces still moving **0**.
+
 ### Vibration
 
 `scripts/haptics.gd` — a short tick when you release, a firmer one on landing, a
@@ -175,6 +197,7 @@ comment on each one:
 | `WOBBLE_LEAN` | How far the tower must lean before it starts creaking | Lower it for more tension, raise it for fewer false alarms |
 | `RIGHTING_START` | Degrees of lean before a piece is nudged back towards flat | Raise it to allow wilder angles |
 | `RIGHTING_FORCE` | How hard that nudge is | 0 disables it entirely; higher gives tidier towers |
+| `RIGHTING_DAMPING` | Resists spin, so the nudge settles instead of buzzing | Raise it if pieces wobble after being nudged |
 | `EARLY_UNTIL` / `MID_UNTIL` | Piece counts where the item mix shifts towards awkward shapes | Lower them to make the shift happen sooner |
 | `SLOWMO_SCALE` | How far time slows during the collapse | Lower for more drama, 1.0 for none |
 | `GAME_OVER_DELAY` | Real seconds spent watching the collapse before the panel | Raise it for better video clips, lower for faster retries |

@@ -72,7 +72,8 @@ const SLOWMO_SCALE := 0.32    ## how far time slows during the collapse
 const SHAKE_LAND := 0.035
 const SHAKE_COLLAPSE := 0.42
 const RIGHTING_START := 25.0  ## degrees of lean before a piece is nudged upright
-const RIGHTING_FORCE := 7.0   ## how hard that nudge is
+const RIGHTING_FORCE := 2.0   ## how hard that nudge is
+const RIGHTING_DAMPING := 2.5 ## resists spin, so the nudge settles instead of buzzing
 const DROP_TILT := 1.0        ## how much of the rope's lean the piece keeps once released
 const LANDING_TOLERANCE := 0.55 ## how far below the tower top still counts as "on top"
 const TABLE_TOP := 0.0        ## the table surface sits at y = 0
@@ -221,19 +222,22 @@ func _process(delta: float) -> void:
 ## removed: nothing below 25 degrees, then a push that grows the further past it
 ## goes. Pieces still tilt and still look precarious; they just stop balancing on
 ## their rim forever.
-func _physics_process(delta: float) -> void:
-	if state == State.OVER:
-		return  # a collapse should stay a mess
-	var start := deg_to_rad(RIGHTING_START)
-	for p in pieces.get_children():
-		var body: RigidBody3D = p
-		if body.freeze:
-			continue
-		var lean: float = body.rotation.z
-		var past: float = absf(lean) - start
-		if past <= 0.0:
-			continue
-		body.apply_torque(Vector3(0.0, 0.0, -signf(lean) * past * RIGHTING_FORCE * body.mass))
+func _physics_process(_delta: float) -> void:
+	# Only the piece currently falling is ever nudged, and only while it is still
+	# being judged. A tower that has settled is never touched again, which is what
+	# stops the nudge turning into a permanent buzz.
+	if state != State.DROPPING or active_piece == null:
+		return
+	if active_piece.freeze or active_piece.sleeping:
+		return
+
+	var lean: float = active_piece.rotation.z
+	var past: float = absf(lean) - deg_to_rad(RIGHTING_START)
+	if past <= 0.0:
+		return
+	var spring: float = -signf(lean) * past * RIGHTING_FORCE
+	var damper: float = -active_piece.angular_velocity.z * RIGHTING_DAMPING
+	active_piece.apply_torque(Vector3(0.0, 0.0, (spring + damper) * active_piece.mass))
 
 
 ## A leaning tower groans. This is a warning, not decoration — it tells the player
@@ -431,6 +435,7 @@ func _resolve_landing() -> void:
 	# that changing what a perfect is worth never changes the difficulty curve.
 	hook.speed = hook.base_speed + min(pieces.get_child_count(), 30) * 0.055
 
+	active_piece.sleeping = true
 	_settle_tower()
 	active_piece = null
 	_arm_next_item()
@@ -561,6 +566,13 @@ func _settle_tower() -> void:
 	for i in kids.size():
 		var body: RigidBody3D = kids[i]
 		body.freeze = i < kids.size() - LIVE_PIECES
+		if not body.freeze:
+			# The drop is over and the stack has been judged still, so the live
+			# pieces are told to sleep. Left awake they grind against each other
+			# at a speed too small to see as movement but big enough to look like
+			# a buzz. Godot wakes them the instant anything touches them, so the
+			# next landing still knocks the tower about exactly as before.
+			body.sleeping = true
 
 
 ## Height of the tallest settled piece, ignoring the one still being judged.
