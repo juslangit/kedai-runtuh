@@ -1,0 +1,18 @@
+# Godot 4 — editor cache and imported assets, all regenerated locally
+.godot/
+/android/
+export_presets.cfg
+
+# Godot exports
+/build/
+*.apk
+*.aab
+*.pck
+
+# Secrets — never commit
+.env
+*.keystore
+*.jks
+
+# macOS
+.DS_Store
