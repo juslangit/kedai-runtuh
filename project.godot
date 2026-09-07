@@ -28,6 +28,7 @@ window/size/viewport_height=1920
 window/size/window_width_override=540
 window/size/window_height_override=960
 window/stretch/mode="canvas_items"
+window/stretch/aspect="keep_width"
 window/handheld/orientation=1
 
 [physics]
@@ -36,5 +37,9 @@ window/handheld/orientation=1
 
 [rendering]
 
+renderer/rendering_method.mobile="gl_compatibility"
+
+
 textures/vram_compression/import_etc2_astc=true
 anti_aliasing/quality/msaa_3d=2
+anti_aliasing/quality/msaa_3d.mobile=0

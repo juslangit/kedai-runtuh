@@ -231,27 +231,26 @@ Android). `export_presets.cfg` *is* committed, and holds no secrets.
 > and cannot be used to publish to the Play Store — that needs a release key you
 > generate yourself and never commit or lose.
 
-### Testing on the Mac: the emulator does not work
-
-The Android emulator was set up and tried in four configurations — Vulkan on
-automatic, host and software GPU, and GL Compatibility on host and software. The
-app installs and launches every time, and Godot's own log shows the engine
-starting, but **nothing renders**. On Apple Silicon the emulator's Vulkan support
-cannot create a surface, and its OpenGL ES fails Godot's context check.
-
-So there is no working way to test the APK on this Mac. The two real options are:
-
-- **The game itself:** press F5 in Godot. That is the same game, on a desktop
-  renderer and a mouse instead of a thumb.
-- **The APK:** put it on a real phone. That is the only test that means anything
-  anyway — the emulator would have told you nothing about touch or frame rate.
-
-The virtual device is still there if you want it (`kedai_phone`, about 10 GB). To
-remove it:
+### Testing on the Mac with the emulator
 
 ```bash
-/opt/homebrew/share/android-commandlinetools/cmdline-tools/latest/bin/avdmanager delete avd -n kedai_phone
+./run-emulator.sh     # boots the virtual phone and installs the game
 ```
+
+**It only works with the GL Compatibility renderer**, which is why that is now the
+Android default. The emulator initialises Vulkan happily — it even reports the real
+Apple M2 GPU — but it cannot present a single frame, so the game starts, sits at
+0% CPU and shows black forever. GL Compatibility renders fine.
+
+Two things worth knowing when a build looks dead:
+
+- **`adb exec-out screencap` returns solid black for GPU surfaces even when the app
+  is drawing.** A black screenshot on its own proves nothing.
+- **CPU load is the reliable test.** `adb shell top -n 1 | grep kedairuntuh` — a
+  game rendering at 60fps is busy. Stuck at 0.0% means it is not drawing.
+
+The emulator is good for checking that it launches, that the layout fits a real
+phone shape, and that touch works. It says nothing useful about frame rate.
 
 ### A trap in project.godot
 
