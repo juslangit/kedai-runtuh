@@ -9,22 +9,28 @@ extends Node3D
 # ---------------------------------------------------------------------------
 # THE FOOD. This is the list you edit.
 #
-#   name   — for your own reference while reading the list
-#   shape  — "cylinder" (round things) or "box" (square things)
-#   size   — x = width, y = height, z = depth, in metres.
-#            Keep every footprint (x and z) between about 0.8 and 1.05. If one
-#            item is much narrower than the rest it becomes an impossible base
-#            and the run ends whenever it turns up. Vary the HEIGHT, not the width.
-#   color  — placeholder colour, used until you set a model
-#   model  — leave "" for now. When you download a Sketchfab .glb into
-#            assets/models/, put its path here, e.g. "res://assets/models/teh.glb"
+#   name   — shown on the hook and in your own reading of the list
+#   shape  — the COLLISION shape: "cylinder" (round) or "box" (square)
+#   width  — footprint in metres. Keep every item between about 0.80 and 1.05.
+#            If one item is much narrower than the rest it becomes an impossible
+#            base and the run ends whenever it turns up.
+#   height — how tall the piece is in metres.
+#   color  — only used when there is no model
+#   model  — the imported file the mesh comes from
+#   node   — the name of the object inside that file
+#
+# width and height are the real physics box. The model is SCALED TO FIT them, not
+# the other way round — so changing a model never changes how the game plays.
 # ---------------------------------------------------------------------------
+const CAFE := "res://assets/models/cafe_props/scene.gltf"
+
 const ITEMS: Array[Dictionary] = [
-	{"name": "Pinggan",       "shape": "cylinder", "size": Vector3(1.00, 0.16, 1.00), "color": Color("f4f1ea"), "model": ""},
-	{"name": "Mangkuk",       "shape": "cylinder", "size": Vector3(0.90, 0.42, 0.90), "color": Color("e3d3b4"), "model": ""},
-	{"name": "Gelas teh",     "shape": "cylinder", "size": Vector3(0.80, 0.60, 0.80), "color": Color("c9863f"), "model": ""},
-	{"name": "Roti canai",    "shape": "box",      "size": Vector3(1.05, 0.22, 1.05), "color": Color("dba441"), "model": ""},
-	{"name": "Kotak bungkus", "shape": "box",      "size": Vector3(0.95, 0.50, 0.95), "color": Color("b5563c"), "model": ""},
+	{"name": "Pinggan",       "shape": "cylinder", "width": 1.00, "height": 0.16, "color": Color("f4f1ea"), "model": CAFE, "node": "Plate_big_Dishes_0"},
+	{"name": "Mangkuk",       "shape": "cylinder", "width": 0.90, "height": 0.42, "color": Color("e3d3b4"), "model": CAFE, "node": "Bowl_Sauces_0"},
+	{"name": "Cawan",         "shape": "cylinder", "width": 0.80, "height": 0.60, "color": Color("c9863f"), "model": CAFE, "node": "Cup_002_Drinks_0"},
+	{"name": "Kotak bungkus", "shape": "box",      "width": 0.95, "height": 0.50, "color": Color("b5563c"), "model": CAFE, "node": "Carton_Food_0"},
+	{"name": "Telur mata",    "shape": "cylinder", "width": 1.05, "height": 0.22, "color": Color("f3e2b0"), "model": CAFE, "node": "Egg_Food_0"},
+	{"name": "Kuih keria",    "shape": "cylinder", "width": 0.85, "height": 0.35, "color": Color("c98b4b"), "model": CAFE, "node": "Donut_brown_Food_0"},
 ]
 
 # How the game feels. Tweak these first when something plays wrong.
@@ -49,6 +55,10 @@ var drop_timer := 0.0
 var next_item := {}
 var active_piece: RigidBody3D = null
 
+## name -> {mesh, transform} for every item that has a model, worked out once at
+## startup so a piece can be built without touching the source file again.
+var _visuals := {}
+
 @onready var hook: Node3D = $Hook
 @onready var preview: MeshInstance3D = $Hook/Preview
 @onready var pieces: Node3D = $Pieces
@@ -60,6 +70,7 @@ var active_piece: RigidBody3D = null
 
 
 func _ready() -> void:
+	_prepare_models()
 	best = _load_best()
 	game_over_panel.hide()
 	$UI/GameOver/Again.pressed.connect(_restart)
@@ -121,15 +132,14 @@ func _process(delta: float) -> void:
 ## When the hook glided too, tapping quickly after a landing spawned the piece
 ## from too low down, sometimes inside the tower.
 func _follow_tower(delta: float) -> void:
-	camera_rig.position.y = lerp(camera_rig.position.y, highest_y + 1.6, delta * 3.0)
+	camera_rig.position.y = lerp(camera_rig.position.y, highest_y + 1.5, delta * 3.0)
 	hook.position.y = highest_y + DROP_HEIGHT
 
 
 ## Pick the next piece of food and show it hanging from the hook.
 func _arm_next_item() -> void:
 	next_item = ITEMS[randi() % ITEMS.size()]
-	preview.mesh = _make_mesh(next_item)
-	preview.material_override = _make_material(next_item.color)
+	_apply_visual(preview, next_item)
 	preview.show()
 	state = State.AIMING
 
@@ -139,7 +149,7 @@ func _drop() -> void:
 	preview.hide()
 
 	var body := RigidBody3D.new()
-	body.mass = next_item.size.x * next_item.size.y * 6.0
+	body.mass = next_item.width * next_item.height * 6.0
 	body.continuous_cd = true
 	# Damping bleeds off the skid so a piece settles where it lands instead of
 	# sliding across the tower and off the edge.
@@ -159,9 +169,8 @@ func _drop() -> void:
 
 	var mesh_node := MeshInstance3D.new()
 	mesh_node.name = "Mesh"
-	mesh_node.mesh = _make_mesh(next_item)
-	mesh_node.material_override = _make_material(next_item.color)
 	body.add_child(mesh_node)
+	_apply_visual(mesh_node, next_item)
 
 	var shape_node := CollisionShape3D.new()
 	shape_node.shape = _make_shape(next_item)
@@ -275,26 +284,97 @@ func _world_box(body: RigidBody3D) -> AABB:
 	return mesh_node.global_transform * mesh_node.get_aabb()
 
 
-func _make_mesh(item: Dictionary) -> Mesh:
+## Work out, once, how each model has to be scaled and shifted to sit exactly
+## inside its physics box. Done at startup so no piece ever loads a file mid-game.
+func _prepare_models() -> void:
+	var opened := {}
+	for item in ITEMS:
+		if String(item.get("model", "")) == "":
+			continue
+		if not opened.has(item.model):
+			var packed: PackedScene = load(item.model)
+			if packed == null:
+				push_warning("Cannot load model file: %s" % item.model)
+				continue
+			opened[item.model] = packed.instantiate()
+		var found := (opened[item.model] as Node).find_child(item.node, true, false)
+		if found == null or not (found is MeshInstance3D):
+			push_warning("No mesh named '%s' inside %s" % [item.node, item.model])
+			continue
+
+		var source: MeshInstance3D = found
+		var mesh: Mesh = source.mesh
+		# The object carries the rotation and scale it had inside the pack. Keep
+		# that so it stays the right way up, then fit it to our own box.
+		var oriented_basis := _basis_from_root(source, opened[item.model])
+		var oriented: AABB = Transform3D(oriented_basis, Vector3.ZERO) * mesh.get_aabb()
+		var footprint: float = maxf(oriented.size.x, oriented.size.z)
+		if footprint <= 0.0 or oriented.size.y <= 0.0:
+			continue
+
+		var fit := Vector3(item.width / footprint, item.height / oriented.size.y, item.width / footprint)
+		var final_basis := oriented_basis.scaled(fit)
+		var final_aabb: AABB = Transform3D(final_basis, Vector3.ZERO) * mesh.get_aabb()
+		_visuals[item.name] = {
+			"mesh": mesh,
+			# centre the model on the body's origin, which is where the box is
+			"transform": Transform3D(final_basis, -final_aabb.get_center()),
+		}
+
+	for root in opened.values():
+		(root as Node).free()
+
+
+## An object inside a glTF file sits under a chain of parents. Multiply their
+## rotations and scales together to get how it is really oriented.
+func _basis_from_root(node: Node3D, root: Node) -> Basis:
+	var b := Basis.IDENTITY
+	var walker: Node = node
+	while walker != null and walker != root:
+		if walker is Node3D:
+			b = (walker as Node3D).transform.basis * b
+		walker = walker.get_parent()
+	return b
+
+
+## Put an item's look onto a MeshInstance3D — the real model if it has one, a
+## plain coloured shape if it does not. Used for the hanging preview and for the
+## dropped piece, so the two can never disagree.
+func _apply_visual(target: MeshInstance3D, item: Dictionary) -> void:
+	if _visuals.has(item.name):
+		var v: Dictionary = _visuals[item.name]
+		target.mesh = v.mesh
+		target.transform = v.transform
+		target.material_override = null
+	else:
+		target.mesh = _primitive_mesh(item)
+		target.transform = Transform3D.IDENTITY
+		target.material_override = _make_material(item.color)
+
+
+## Fallback look, used when an item has no model or the model could not be found.
+func _primitive_mesh(item: Dictionary) -> Mesh:
 	if item.shape == "cylinder":
 		var cyl := CylinderMesh.new()
-		cyl.top_radius = item.size.x * 0.5
-		cyl.bottom_radius = item.size.x * 0.5
-		cyl.height = item.size.y
+		cyl.top_radius = item.width * 0.5
+		cyl.bottom_radius = item.width * 0.5
+		cyl.height = item.height
 		return cyl
 	var box := BoxMesh.new()
-	box.size = item.size
+	box.size = Vector3(item.width, item.height, item.width)
 	return box
 
 
+## The physics shape. This is what the game actually plays on, and it does not
+## depend on the model at all.
 func _make_shape(item: Dictionary) -> Shape3D:
 	if item.shape == "cylinder":
 		var cyl := CylinderShape3D.new()
-		cyl.radius = item.size.x * 0.5
-		cyl.height = item.size.y
+		cyl.radius = item.width * 0.5
+		cyl.height = item.height
 		return cyl
 	var box := BoxShape3D.new()
-	box.size = item.size
+	box.size = Vector3(item.width, item.height, item.width)
 	return box
 
 

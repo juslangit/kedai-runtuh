@@ -40,15 +40,34 @@ assets/models/       Sketchfab .glb files go here
 Open `scripts/game.gd`. At the top there is a list called `ITEMS`. Add a line:
 
 ```gdscript
-{"name": "Cawan kopi", "shape": "cylinder", "size": Vector3(0.45, 0.40, 0.45), "color": Color("6b4423"), "model": ""},
+{"name": "Kuih keria", "shape": "cylinder", "width": 0.85, "height": 0.35, "color": Color("c98b4b"), "model": CAFE, "node": "Donut_brown_Food_0"},
 ```
 
-- `shape` — `"cylinder"` for round things, `"box"` for square things
-- `size` — width, height, depth, in metres. A plate is about 0.95 wide and 0.16 tall
-- `model` — leave `""` to use a plain coloured shape. Once you download a Sketchfab
-  model into `assets/models/`, put its path here, e.g. `"res://assets/models/kopi.glb"`
+- `shape` — the **collision** shape: `"cylinder"` for round, `"box"` for square
+- `width` — footprint in metres. **Keep every item between 0.80 and 1.05.** An item
+  much narrower than the rest becomes an impossible base and ends the run whenever
+  it appears
+- `height` — how tall the piece is in metres
+- `model` — the imported file the mesh comes from
+- `node` — the name of the object inside that file
+- `color` — only used if there is no model
+
+**`width` and `height` are the real physics box. The model is scaled to fit them,
+not the other way round** — so swapping a model never changes how the game plays.
+Leave `model` as `""` and you get a plain coloured shape instead.
 
 Nothing else needs changing. That is the only place food is defined.
+
+### Finding the object name inside a model file
+
+A Sketchfab pack is one file containing dozens of objects. To list them:
+
+```bash
+/Applications/Godot.app/Contents/MacOS/Godot --headless --path . res://_inspect.tscn
+```
+
+That prints every item's target size next to what the model actually fits to, so
+you can see immediately if a model is missing or badly proportioned.
 
 ## Changing how it feels
 
@@ -74,4 +93,15 @@ print the score. Useful for checking a tuning change across several runs quickly
 /Applications/Godot.app/Contents/MacOS/Godot --headless --path . res://_test.tscn
 ```
 
-(The `_test*` files are development-only and are not part of the game.)
+It plays about six runs a minute and prints the score for each, which is how the
+tuning above was arrived at. To check how it *looks* rather than how it plays,
+`res://_shot.tscn` builds a tower and saves screenshots.
+
+(The `_test*`, `_inspect*` and `_shot*` files are development tools, not part of
+the game.)
+
+## Assets
+
+The food models are from Sketchfab under CC-BY-4.0 — commercial use is allowed but
+the author must be credited. See [CREDITS.md](CREDITS.md); that credit has to
+appear on any store or itch.io page too.

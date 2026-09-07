@@ -1,15 +1,49 @@
-[gd_scene load_steps=7 format=3]
+[gd_scene load_steps=13 format=3]
 
 [ext_resource type="Script" path="res://scripts/game.gd" id="1_game"]
 [ext_resource type="Script" path="res://scripts/hook.gd" id="2_hook"]
 
 [sub_resource type="Environment" id="Env_1"]
 background_mode = 1
-background_color = Color(0.101961, 0.121569, 0.164706, 1)
+background_color = Color(0.152941, 0.121569, 0.129412, 1)
 ambient_light_source = 2
-ambient_light_color = Color(0.482353, 0.541176, 0.639216, 1)
-ambient_light_energy = 0.55
+ambient_light_color = Color(0.929412, 0.831373, 0.717647, 1)
+ambient_light_energy = 0.85
 tonemap_mode = 2
+tonemap_white = 1.2
+glow_enabled = true
+glow_intensity = 0.15
+glow_bloom = 0.05
+
+[sub_resource type="Gradient" id="Grad_wall"]
+offsets = PackedFloat32Array(0, 0.62, 1)
+colors = PackedColorArray(0.054902, 0.043137, 0.054902, 1, 0.152941, 0.101961, 0.0980392, 1, 0.352941, 0.211765, 0.152941, 1)
+
+[sub_resource type="GradientTexture2D" id="GradTex_wall"]
+gradient = SubResource("Grad_wall")
+width = 4
+height = 256
+fill_from = Vector2(0, 0)
+fill_to = Vector2(0, 1)
+
+[sub_resource type="StandardMaterial3D" id="Mat_wall"]
+shading_mode = 0
+albedo_texture = SubResource("GradTex_wall")
+
+[sub_resource type="PlaneMesh" id="Mesh_wall"]
+size = Vector2(60, 60)
+orientation = 2
+
+[sub_resource type="CylinderMesh" id="Mesh_rope"]
+top_radius = 0.04
+bottom_radius = 0.04
+height = 9.0
+radial_segments = 6
+rings = 1
+
+[sub_resource type="StandardMaterial3D" id="Mat_rope"]
+albedo_color = Color(0.239216, 0.196078, 0.176471, 1)
+roughness = 1.0
 
 [sub_resource type="BoxMesh" id="Mesh_table"]
 size = Vector3(5, 0.5, 3)
@@ -18,8 +52,8 @@ size = Vector3(5, 0.5, 3)
 size = Vector3(5, 0.5, 3)
 
 [sub_resource type="StandardMaterial3D" id="Mat_table"]
-albedo_color = Color(0.286275, 0.223529, 0.192157, 1)
-roughness = 0.9
+albedo_color = Color(0.352941, 0.235294, 0.164706, 1)
+roughness = 0.85
 
 [node name="Main" type="Node3D"]
 script = ExtResource("1_game")
@@ -29,16 +63,28 @@ environment = SubResource("Env_1")
 
 [node name="Sun" type="DirectionalLight3D" parent="."]
 transform = Transform3D(0.866025, 0, 0.5, 0.383022, 0.642788, -0.663414, -0.321394, 0.766044, 0.55667, 0, 8, 0)
-light_energy = 1.2
+light_color = Color(1, 0.929412, 0.815686, 1)
+light_energy = 2.1
 shadow_enabled = true
+
+[node name="Fill" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.766044, 0, -0.642788, -0.219846, 0.939693, -0.262003, 0.604023, 0.34202, 0.719846, 0, 6, 0)
+light_color = Color(0.788235, 0.831373, 1, 1)
+light_energy = 0.55
 
 [node name="CameraRig" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.6, 0)
 
+[node name="Backdrop" type="MeshInstance3D" parent="CameraRig"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -14)
+mesh = SubResource("Mesh_wall")
+material_override = SubResource("Mat_wall")
+
 [node name="Camera3D" type="Camera3D" parent="CameraRig"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 12)
+keep_aspect = 0
 current = true
-fov = 50.0
+fov = 23.0
 
 [node name="Table" type="StaticBody3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.25, 0)
@@ -53,6 +99,11 @@ shape = SubResource("Shape_table")
 [node name="Hook" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.5, 0)
 script = ExtResource("2_hook")
+
+[node name="Rope" type="MeshInstance3D" parent="Hook"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.8, 0)
+mesh = SubResource("Mesh_rope")
+material_override = SubResource("Mat_rope")
 
 [node name="Preview" type="MeshInstance3D" parent="Hook"]
 
