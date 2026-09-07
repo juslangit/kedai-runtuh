@@ -1,20 +1,20 @@
 extends Node
-const OUT := "/private/tmp/claude-501/-Users-juslangit/a1ac5792-094c-4962-80d1-46c4e82ee111/scratchpad/shots"
+const OUT := "/Users/juslangit/Desktop/project/kedai-runtuh/press"
 func _ready() -> void:
 	SaveData.high_score = 23
 	var menu = load("res://scenes/main_menu.tscn").instantiate()
 	add_child(menu)
 	for i in 20: await get_tree().process_frame
-	await _shot("ui_menu")
+	await _shot("01_main_menu")
 
 	var panel = menu.get_node("UI/SettingsPanel")
 	panel.open()
 	for i in 6: await get_tree().process_frame
-	await _shot("ui_settings")
+	await _shot("05_settings")
 
 	panel.get_node("Center/Panel/Box/Credits").pressed.emit()
 	for i in 6: await get_tree().process_frame
-	await _shot("ui_credits")
+	await _shot("06_credits")
 	get_tree().quit()
 
 func _shot(n: String) -> void:

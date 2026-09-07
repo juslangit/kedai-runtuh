@@ -1,8 +1,8 @@
 extends Node
 ## Plays the game and saves a screenshot the first time it reaches each of a few
 ## scores, so the art can be checked at different tower heights.
-const OUT := "/private/tmp/claude-501/-Users-juslangit/a1ac5792-094c-4962-80d1-46c4e82ee111/scratchpad/shots"
-const AT := [2, 5, 9]
+const OUT := "/Users/juslangit/Desktop/project/kedai-runtuh/press"
+const AT := [3, 6, 9]
 func _ready() -> void:
 	DirAccess.make_dir_recursive_absolute(OUT)
 	randomize()
@@ -19,14 +19,14 @@ func _ready() -> void:
 		if main.score in AT and not taken.has(main.score) and main.preview.visible:
 			taken[main.score] = true
 			await RenderingServer.frame_post_draw
-			get_viewport().get_texture().get_image().save_png("%s/hang_%d.png" % [OUT, main.score])
+			get_viewport().get_texture().get_image().save_png("%s/0%d_tower_%d.png" % [OUT, taken.size() + 1, main.score])
 			print("shot at score ", main.score)
 		if absf(main.hook.position.x - _aim(main)) < 0.10:
 			main._drop()
 	# and one of the collapse
 	await get_tree().create_timer(0.7).timeout
 	await RenderingServer.frame_post_draw
-	get_viewport().get_texture().get_image().save_png(OUT + "/collapse.png")
+	get_viewport().get_texture().get_image().save_png(OUT + "/07_collapse.png")
 	print("final score ", main.score)
 	get_tree().quit()
 
