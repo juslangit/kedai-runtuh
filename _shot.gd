@@ -1,27 +1,33 @@
 extends Node
-## Builds a tower, then saves a few frames as PNGs so the art can be checked.
+## Plays the game and saves a screenshot the first time it reaches each of a few
+## scores, so the art can be checked at different tower heights.
 const OUT := "/private/tmp/claude-501/-Users-juslangit/a1ac5792-094c-4962-80d1-46c4e82ee111/scratchpad/shots"
+const AT := [2, 5, 9]
 func _ready() -> void:
 	DirAccess.make_dir_recursive_absolute(OUT)
-	seed(7)
+	randomize()
 	var main = load("res://scenes/main.tscn").instantiate()
 	add_child(main)
 	await get_tree().process_frame
-	var shot := 0
-	for i in 400:
+	var taken := {}
+	for i in 4000:
 		await get_tree().process_frame
-		# capture while a piece is hanging and waiting, which is what the player
-		# actually looks at most of the time
-		if main.state == 0 and main.score in [2, 4, 6] and shot < 3 and main.preview.visible:
-			shot += 1
+		if main.state == 2:
+			break
+		if main.state != 0:
+			continue
+		if main.score in AT and not taken.has(main.score) and main.preview.visible:
+			taken[main.score] = true
 			await RenderingServer.frame_post_draw
 			get_viewport().get_texture().get_image().save_png("%s/hang_%d.png" % [OUT, main.score])
-			print("saved hanging shot at score ", main.score)
-		if main.state == 0 and absf(main.hook.position.x - _aim(main)) < 0.10:
+			print("shot at score ", main.score)
+		if absf(main.hook.position.x - _aim(main)) < 0.10:
 			main._drop()
+	# and one of the collapse
+	await get_tree().create_timer(0.7).timeout
 	await RenderingServer.frame_post_draw
-	get_viewport().get_texture().get_image().save_png(OUT + "/final.png")
-	print("done, score=", main.score)
+	get_viewport().get_texture().get_image().save_png(OUT + "/collapse.png")
+	print("final score ", main.score)
 	get_tree().quit()
 
 func _aim(main) -> float:

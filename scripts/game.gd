@@ -41,6 +41,7 @@ const SETTLE_TIME := 0.35     ## must stay still this long before it counts
 const MAX_DROP_TIME := 5.0    ## give up waiting after this and judge it anyway
 const LIVE_PIECES := 2        ## how many pieces at the top stay physically live
 const GAME_OVER_DELAY := 1.2  ## seconds to watch the tower fall before the panel shows
+const ANCHOR_HEIGHT := 5.2    ## how high above the tower the rope is pinned
 const LANDING_TOLERANCE := 0.55 ## how far below the tower top still counts as "on top"
 const TABLE_TOP := 0.0        ## the table surface sits at y = 0
 
@@ -60,6 +61,8 @@ var active_piece: RigidBody3D = null
 var _visuals := {}
 
 @onready var hook: Node3D = $Hook
+@onready var rope: Node3D = $Rope
+@onready var pivot: Node3D = $Pivot
 @onready var preview: MeshInstance3D = $Hook/Preview
 @onready var pieces: Node3D = $Pieces
 @onready var camera_rig: Node3D = $CameraRig
@@ -135,10 +138,27 @@ func _follow_tower(delta: float) -> void:
 	camera_rig.position.y = lerp(camera_rig.position.y, highest_y + 1.5, delta * 3.0)
 	hook.position.y = highest_y + DROP_HEIGHT
 
+	# The rope hangs from a fixed point straight above the middle of the table.
+	# Only its bottom end moves, because only the hook moves.
+	pivot.position = Vector3(0.0, highest_y + ANCHOR_HEIGHT, 0.0)
+	# End the rope at the TOP of whatever is hanging, not at its middle, so it
+	# looks tied on rather than skewered through.
+	var tie_on := 0.0
+	if state == State.AIMING and not next_item.is_empty():
+		tie_on = float(next_item.height) * 0.5
+	rope.set_endpoints(pivot.position, hook.global_position + Vector3(0.0, tie_on, 0.0))
+
 
 ## Pick the next piece of food and show it hanging from the hook.
 func _arm_next_item() -> void:
-	next_item = ITEMS[randi() % ITEMS.size()]
+	# Don't hand out the same thing twice in a row. A tower of five identical
+	# boxes looks like a bug even when it is only chance.
+	var pick: Dictionary = ITEMS[randi() % ITEMS.size()]
+	var tries := 0
+	while ITEMS.size() > 1 and pick.name == next_item.get("name", "") and tries < 8:
+		pick = ITEMS[randi() % ITEMS.size()]
+		tries += 1
+	next_item = pick
 	_apply_visual(preview, next_item)
 	preview.show()
 	state = State.AIMING

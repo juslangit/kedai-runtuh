@@ -13,8 +13,14 @@ listing, itch.io page, or an in-game credits screen.
 
 Used for: pinggan, mangkuk, cawan, kotak bungkus, telur mata, kuih keria.
 
-Original licence text as downloaded is kept at
-`assets/models/cafe_props/license.txt`.
+> This work is based on ["Low Poly Kitchen"](https://sketchfab.com/3d-models/low-poly-kitchen-292f9c3a654d4e9a944252bb99342935)
+> by [Mumladze28](https://sketchfab.com/Mumladze28) licensed under
+> [CC-BY-4.0](http://creativecommons.org/licenses/by/4.0/)
+
+Used for: the kitchen the game is played in.
+
+Original licence texts as downloaded are kept next to each model, at
+`assets/models/cafe_props/license.txt` and `assets/models/kitchen/license.txt`.
 
 ## Engine
 

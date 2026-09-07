@@ -1,7 +1,9 @@
-[gd_scene load_steps=13 format=3]
+[gd_scene load_steps=16 format=3]
 
 [ext_resource type="Script" path="res://scripts/game.gd" id="1_game"]
 [ext_resource type="Script" path="res://scripts/hook.gd" id="2_hook"]
+[ext_resource type="PackedScene" path="res://assets/models/kitchen/scene.gltf" id="3_kitchen"]
+[ext_resource type="Script" path="res://scripts/rope.gd" id="4_rope"]
 
 [sub_resource type="Environment" id="Env_1"]
 background_mode = 1
@@ -17,7 +19,7 @@ glow_bloom = 0.05
 
 [sub_resource type="Gradient" id="Grad_wall"]
 offsets = PackedFloat32Array(0, 0.62, 1)
-colors = PackedColorArray(0.054902, 0.043137, 0.054902, 1, 0.152941, 0.101961, 0.0980392, 1, 0.352941, 0.211765, 0.152941, 1)
+colors = PackedColorArray(0.101961, 0.0784314, 0.0862745, 1, 0.2, 0.137255, 0.129412, 1, 0.376471, 0.231373, 0.168627, 1)
 
 [sub_resource type="GradientTexture2D" id="GradTex_wall"]
 gradient = SubResource("Grad_wall")
@@ -34,16 +36,19 @@ albedo_texture = SubResource("GradTex_wall")
 size = Vector2(60, 60)
 orientation = 2
 
-[sub_resource type="CylinderMesh" id="Mesh_rope"]
-top_radius = 0.04
-bottom_radius = 0.04
-height = 9.0
-radial_segments = 6
-rings = 1
+[sub_resource type="CylinderMesh" id="Mesh_pivot"]
+top_radius = 0.14
+bottom_radius = 0.14
+height = 0.16
+radial_segments = 12
 
-[sub_resource type="StandardMaterial3D" id="Mat_rope"]
-albedo_color = Color(0.239216, 0.196078, 0.176471, 1)
-roughness = 1.0
+[sub_resource type="BoxMesh" id="Mesh_bracket"]
+size = Vector3(0.9, 0.16, 0.36)
+
+[sub_resource type="StandardMaterial3D" id="Mat_pivot"]
+albedo_color = Color(0.180392, 0.152941, 0.141176, 1)
+metallic = 0.4
+roughness = 0.55
 
 [sub_resource type="BoxMesh" id="Mesh_table"]
 size = Vector3(5, 0.5, 3)
@@ -86,6 +91,11 @@ keep_aspect = 0
 current = true
 fov = 23.0
 
+[node name="Kitchen" type="Node3D" parent="."]
+transform = Transform3D(-6, 0, 0, 0, 6, 0, 0, 0, -6, 0, -3, 0)
+
+[node name="Room" parent="Kitchen" instance=ExtResource("3_kitchen")]
+
 [node name="Table" type="StaticBody3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.25, 0)
 
@@ -100,12 +110,21 @@ shape = SubResource("Shape_table")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.5, 0)
 script = ExtResource("2_hook")
 
-[node name="Rope" type="MeshInstance3D" parent="Hook"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.8, 0)
-mesh = SubResource("Mesh_rope")
-material_override = SubResource("Mat_rope")
-
 [node name="Preview" type="MeshInstance3D" parent="Hook"]
+
+[node name="Pivot" type="Node3D" parent="."]
+
+[node name="Bracket" type="MeshInstance3D" parent="Pivot"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.1, 0)
+mesh = SubResource("Mesh_bracket")
+material_override = SubResource("Mat_pivot")
+
+[node name="Ring" type="MeshInstance3D" parent="Pivot"]
+mesh = SubResource("Mesh_pivot")
+material_override = SubResource("Mat_pivot")
+
+[node name="Rope" type="Node3D" parent="."]
+script = ExtResource("4_rope")
 
 [node name="Pieces" type="Node3D" parent="."]
 
@@ -114,10 +133,12 @@ material_override = SubResource("Mat_rope")
 [node name="Score" type="Label" parent="UI"]
 anchors_preset = 10
 anchor_right = 1.0
-offset_top = 70.0
-offset_bottom = 210.0
+offset_top = 160.0
+offset_bottom = 300.0
 grow_horizontal = 2
-theme_override_colors/font_color = Color(1, 1, 1, 0.9)
+theme_override_colors/font_color = Color(1, 1, 1, 0.95)
+theme_override_colors/font_outline_color = Color(0.0784314, 0.054902, 0.0470588, 0.85)
+theme_override_constants/outline_size = 12
 theme_override_font_sizes/font_size = 96
 text = "0"
 horizontal_alignment = 1
