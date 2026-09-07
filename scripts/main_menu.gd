@@ -13,7 +13,7 @@ func _ready() -> void:
 	sound_button.pressed.connect(_on_sound)
 	$UI/Root/Layout/Quit.pressed.connect(_on_quit)
 
-	best_label.text = "TERBAIK  %d" % SaveData.high_score
+	best_label.text = "BEST  %d" % SaveData.high_score
 	_refresh_sound()
 	$UI/Root/Layout/Play.grab_focus()
 
@@ -32,4 +32,4 @@ func _on_quit() -> void:
 
 
 func _refresh_sound() -> void:
-	sound_button.text = "BUNYI  %s" % ("ON" if SaveData.sound_on else "OFF")
+	sound_button.text = "SOUND  %s" % ("ON" if SaveData.sound_on else "OFF")

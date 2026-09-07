@@ -21,10 +21,12 @@ On desktop, tap = left mouse click, or press **Space**. **Escape** pauses
 
 | Screen | What is on it |
 |---|---|
-| Main menu | Title, **MAIN**, **BUNYI** (sound on/off), **KELUAR**, and your best score |
+| Main menu | Title, **PLAY**, **SOUND** (on/off), **QUIT**, and your best score |
 | In game | Score and best score top left, pause button top right |
-| Pause | Score and best score, **SAMBUNG**, **MULA SEMULA**, **MENU UTAMA**, **BUNYI** |
-| Game over | Why you lost, your score, your best, and **REKOD BARU!** if you beat it |
+| Pause | Score and best score, **RESUME**, **RESTART**, **MAIN MENU**, **SOUND** |
+| Game over | Why you lost, your score, your best, and **NEW BEST!** if you beat it |
+
+All interface text is in English. *Kedai Runtuh* stays as the game's name.
 
 ### The high score
 
@@ -51,12 +53,29 @@ Buttons pick a look with `theme_type_variation` on the node:
 `PrimaryButton` for the big red one, `IconButton` for the small round one, and
 nothing at all for the ordinary cream one.
 
+### Swapping in a bought UI art pack
+
+Every button and panel is currently **drawn by Godot** — rounded boxes, no image
+files. To use artwork instead (the [Cozy UI Pack](https://dobo-ui.itch.io/cozy-ui),
+for example):
+
+1. Buy and download the pack, and unzip the PNGs into `assets/ui/`.
+2. Open `scripts/ui_theme.gd` and fill in the paths in the `SPRITES` block near
+   the top — one for the ordinary button, one for its pressed state, one for the
+   primary button, one for the panel.
+3. Set each `margin` to the 9-slice border of that PNG: how many pixels at each
+   edge are frame that must not stretch. For 64px pieces this is usually 16–20.
+
+Anything left as `""` keeps the drawn version, so the game always runs and you can
+swap one piece at a time. Padding is carried over from the drawn style being
+replaced, so the layout does not shift when the art goes in.
+
 ## The two ways to lose
 
 | Screen says | What happened |
 |---|---|
-| **RUNTUH!** | A piece fell off the table — the tower collapsed |
-| **TERSASAR!** | A piece came to rest too far below the top — you missed the tower |
+| **TOPPLED!** | A piece fell off the table — the tower went over |
+| **MISSED!** | A piece came to rest too far below the top — you missed the tower |
 
 ---
 
@@ -81,7 +100,7 @@ assets/models/        Sketchfab models
 Open `scripts/game.gd`. At the top there is a list called `ITEMS`. Add a line:
 
 ```gdscript
-{"name": "Kuih keria", "shape": "cylinder", "width": 0.85, "height": 0.35, "color": Color("c98b4b"), "model": CAFE, "node": "Donut_brown_Food_0"},
+{"name": "Doughnut", "shape": "cylinder", "width": 0.85, "height": 0.35, "color": Color("c98b4b"), "model": CAFE, "node": "Donut_brown_Food_0"},
 ```
 
 - `shape` — the **collision** shape: `"cylinder"` for round, `"box"` for square

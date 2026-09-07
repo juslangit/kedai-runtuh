@@ -20,6 +20,24 @@ const RED_DARK     := Color("9c4230")
 const GOLD         := Color("dba441")
 const DIM          := Color(0.075, 0.055, 0.043, 0.82)
 
+# --- swapping in bought UI artwork ----------------------------------------
+#
+# Right now every button and panel is DRAWN by Godot — rounded boxes, no image
+# files. To use an art pack instead (the Cozy UI Pack, for example), put its PNGs
+# in assets/ui/ and write the filenames in here. Anything left as "" keeps the
+# drawn version, so the game always runs and you can swap one piece at a time.
+#
+#   margin — the 9-slice border, in pixels of the source PNG: how much of each
+#            edge is frame that must NOT stretch when the button is resized.
+#            Cozy UI's 64px pieces are usually 16 or 20. Too small and the corners
+#            smear; too large and the middle never fills.
+const SPRITES := {
+	"button":         {"path": "", "margin": 16},
+	"button_pressed": {"path": "", "margin": 16},
+	"button_primary": {"path": "", "margin": 16},
+	"panel":          {"path": "", "margin": 32},
+}
+
 static var _cached: Theme
 
 
@@ -110,7 +128,56 @@ static func _build() -> Theme:
 	panel.shadow_size = 24
 	t.set_stylebox("panel", "PanelContainer", panel)
 
+	_apply_sprites(t)
 	return t
+
+
+## Replace the drawn boxes with artwork, wherever a path has been filled in above.
+## Padding is copied from the drawn version it replaces, so buttons keep the same
+## size and the layout does not shift when the art goes in.
+static func _apply_sprites(t: Theme) -> void:
+	var swaps := [
+		["button", "Button", ["normal", "hover", "focus"]],
+		["button_pressed", "Button", ["pressed"]],
+		["button_primary", "PrimaryButton", ["normal", "hover", "focus"]],
+		["panel", "PanelContainer", ["panel"]],
+	]
+	for swap in swaps:
+		var key: String = swap[0]
+		var type: String = swap[1]
+		var slots: Array = swap[2]
+		var existing := t.get_stylebox(slots[0], type)
+		var box := _sprite(key, existing)
+		if box == null:
+			continue
+		for slot in slots:
+			t.set_stylebox(slot, type, box)
+
+
+## One 9-sliced texture box, or null if no artwork was supplied for it.
+static func _sprite(key: String, copy_padding_from: StyleBox) -> StyleBoxTexture:
+	var entry: Dictionary = SPRITES.get(key, {})
+	var path: String = str(entry.get("path", ""))
+	if path == "" or not ResourceLoader.exists(path):
+		return null
+	var tex: Texture2D = load(path)
+	if tex == null:
+		push_warning("UI sprite could not be loaded: %s" % path)
+		return null
+
+	var box := StyleBoxTexture.new()
+	box.texture = tex
+	var m: float = float(entry.get("margin", 16))
+	box.texture_margin_left = m
+	box.texture_margin_right = m
+	box.texture_margin_top = m
+	box.texture_margin_bottom = m
+	if copy_padding_from != null:
+		box.content_margin_left = copy_padding_from.content_margin_left
+		box.content_margin_right = copy_padding_from.content_margin_right
+		box.content_margin_top = copy_padding_from.content_margin_top
+		box.content_margin_bottom = copy_padding_from.content_margin_bottom
+	return box
 
 
 ## One button style, in all four of its states.

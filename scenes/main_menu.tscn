@@ -106,7 +106,7 @@ horizontal_alignment = 1
 [node name="Subtitle" type="Label" parent="UI/Root/Layout"]
 layout_mode = 2
 theme_type_variation = &"Subtitle"
-text = "susun setinggi mungkin"
+text = "stack it as high as you can"
 horizontal_alignment = 1
 
 [node name="Gap" type="Control" parent="UI/Root/Layout"]
@@ -118,19 +118,19 @@ custom_minimum_size = Vector2(620, 0)
 layout_mode = 2
 size_flags_horizontal = 4
 theme_type_variation = &"PrimaryButton"
-text = "MAIN"
+text = "PLAY"
 
 [node name="Sound" type="Button" parent="UI/Root/Layout"]
 custom_minimum_size = Vector2(620, 0)
 layout_mode = 2
 size_flags_horizontal = 4
-text = "BUNYI  ON"
+text = "SOUND  ON"
 
 [node name="Quit" type="Button" parent="UI/Root/Layout"]
 custom_minimum_size = Vector2(620, 0)
 layout_mode = 2
 size_flags_horizontal = 4
-text = "KELUAR"
+text = "QUIT"
 
 [node name="Gap2" type="Control" parent="UI/Root/Layout"]
 custom_minimum_size = Vector2(0, 70)
@@ -139,5 +139,5 @@ layout_mode = 2
 [node name="Best" type="Label" parent="UI/Root/Layout"]
 layout_mode = 2
 theme_type_variation = &"Subtitle"
-text = "TERBAIK  0"
+text = "BEST  0"
 horizontal_alignment = 1

@@ -25,12 +25,12 @@ extends Node3D
 const CAFE := "res://assets/models/cafe_props/scene.gltf"
 
 const ITEMS: Array[Dictionary] = [
-	{"name": "Pinggan",       "shape": "cylinder", "width": 1.00, "height": 0.16, "color": Color("f4f1ea"), "model": CAFE, "node": "Plate_big_Dishes_0"},
-	{"name": "Mangkuk",       "shape": "cylinder", "width": 0.90, "height": 0.42, "color": Color("e3d3b4"), "model": CAFE, "node": "Bowl_Sauces_0"},
-	{"name": "Cawan",         "shape": "cylinder", "width": 0.80, "height": 0.60, "color": Color("c9863f"), "model": CAFE, "node": "Cup_002_Drinks_0"},
-	{"name": "Kotak bungkus", "shape": "box",      "width": 0.95, "height": 0.50, "color": Color("b5563c"), "model": CAFE, "node": "Carton_Food_0"},
-	{"name": "Telur mata",    "shape": "cylinder", "width": 1.05, "height": 0.22, "color": Color("f3e2b0"), "model": CAFE, "node": "Egg_Food_0"},
-	{"name": "Kuih keria",    "shape": "cylinder", "width": 0.85, "height": 0.35, "color": Color("c98b4b"), "model": CAFE, "node": "Donut_brown_Food_0"},
+	{"name": "Plate",        "shape": "cylinder", "width": 1.00, "height": 0.16, "color": Color("f4f1ea"), "model": CAFE, "node": "Plate_big_Dishes_0"},
+	{"name": "Bowl",         "shape": "cylinder", "width": 0.90, "height": 0.42, "color": Color("e3d3b4"), "model": CAFE, "node": "Bowl_Sauces_0"},
+	{"name": "Cup",          "shape": "cylinder", "width": 0.80, "height": 0.60, "color": Color("c9863f"), "model": CAFE, "node": "Cup_002_Drinks_0"},
+	{"name": "Takeaway box", "shape": "box",      "width": 0.95, "height": 0.50, "color": Color("b5563c"), "model": CAFE, "node": "Carton_Food_0"},
+	{"name": "Fried egg",    "shape": "cylinder", "width": 1.05, "height": 0.22, "color": Color("f3e2b0"), "model": CAFE, "node": "Egg_Food_0"},
+	{"name": "Doughnut",     "shape": "cylinder", "width": 0.85, "height": 0.35, "color": Color("c98b4b"), "model": CAFE, "node": "Donut_brown_Food_0"},
 ]
 
 # How the game feels. Tweak these first when something plays wrong.
@@ -145,7 +145,7 @@ func _process(delta: float) -> void:
 	for p in pieces.get_children():
 		if p.global_position.y < TABLE_TOP - FALL_MARGIN:
 			if state != State.OVER:
-				_game_over("JATUH!")
+				_game_over("TOPPLED!")
 			return
 
 	if state != State.DROPPING or active_piece == null:
@@ -256,7 +256,7 @@ func _resolve_landing() -> void:
 	# well below that, it slid down the side or missed onto the table — either
 	# way it is not stacked, and the run is over.
 	if score > 0 and bottom < tower_top - LANDING_TOLERANCE:
-		_game_over("TERSASAR!")
+		_game_over("MISSED!")
 		return
 
 	score += 1
@@ -329,7 +329,7 @@ func _toggle_sound() -> void:
 
 
 func _refresh_sound_button() -> void:
-	pause_sound_button.text = "BUNYI  %s" % ("ON" if SaveData.sound_on else "OFF")
+	pause_sound_button.text = "SOUND  %s" % ("ON" if SaveData.sound_on else "OFF")
 
 
 ## Losing unsticks the whole tower and gives it a shove, so every run ends with
