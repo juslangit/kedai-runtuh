@@ -190,6 +190,56 @@ Other development scenes, all run the same way:
 
 (Everything starting with `_` is a development tool, not part of the game.)
 
+## Putting it on an Android phone
+
+```bash
+./build-android.sh      # makes build/kedai-runtuh.apk
+./install-android.sh    # makes it and pushes it to a plugged-in phone
+```
+
+The simplest way to test, needing nothing on the phone: run `./build-android.sh`,
+then copy `build/kedai-runtuh.apk` onto the phone however you like and tap it.
+Android will ask permission to install from an unknown source once.
+
+To install over a cable instead, the phone needs developer mode:
+
+1. **Settings → About phone**, tap **Build number** seven times
+2. **Settings → Developer options → USB debugging**, turn it on
+3. Plug it in with a cable that carries **data**, not just power
+4. Accept the *Allow USB debugging?* prompt on the phone
+
+Then `./install-android.sh`. To watch for errors while you play:
+
+```bash
+/opt/homebrew/share/android-commandlinetools/platform-tools/adb logcat -s godot
+```
+
+### What was installed to make this work
+
+| Thing | Where | Why |
+|---|---|---|
+| OpenJDK 17 | `/opt/homebrew/opt/openjdk@17` | Android tools are Java |
+| Android command-line tools | `/opt/homebrew/share/android-commandlinetools` | `adb`, `apksigner`, `zipalign` |
+| Godot export templates 4.7.2 | `~/Library/Application Support/Godot/export_templates/` | the prebuilt Android engine |
+| Debug keystore | `~/.android/debug.keystore` | Android refuses to install an unsigned app |
+
+Godot's paths to these live in its **editor settings**, not in this repo, so a
+different machine needs them set again (Editor → Editor Settings → Export →
+Android). `export_presets.cfg` *is* committed, and holds no secrets.
+
+> The keystore here is a **debug** key. It is fine for testing on your own phone
+> and cannot be used to publish to the Play Store — that needs a release key you
+> generate yourself and never commit or lose.
+
+### Keeping the download small
+
+The APK started at **84 MB**, of which **44 MB was the table's textures** — a
+4096px normal map and a 4096px roughness map for a wooden slab you see edge-on.
+Godot can shrink textures at import without touching the original files: the
+`process/size_limit` line in each `.import` file next to the texture. Setting the
+table's to 256 and the food's to 1024 took the APK to **36 MB** with no visible
+difference. Worth checking whenever a downloaded model goes in.
+
 ## Assets
 
 The food models are from Sketchfab under CC-BY-4.0 — commercial use is allowed but

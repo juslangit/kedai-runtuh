@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://thij6k8ia5p"
-path="res://.godot/imported/Sauces_baseColor.png-26e9345b35f3d6f7bee34ef7804c6ff4.ctex"
+uid="uid://dbu7f8ijf6phd"
+path="res://.godot/imported/icon_192.png-3529c9a11ab7a45709d304ee34cb3e69.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/models/cafe_props/textures/Sauces_baseColor.png"
-dest_files=["res://.godot/imported/Sauces_baseColor.png-26e9345b35f3d6f7bee34ef7804c6ff4.ctex"]
+source_file="res://icon_192.png"
+dest_files=["res://.godot/imported/icon_192.png-3529c9a11ab7a45709d304ee34cb3e69.ctex"]
 
 [params]
 
@@ -36,5 +36,5 @@ process/premult_alpha=false
 process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
-process/size_limit=1024
+process/size_limit=0
 detect_3d/compress_to=1

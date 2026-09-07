@@ -1,7 +1,8 @@
 # Godot 4 — editor cache and imported assets, all regenerated locally
 .godot/
 /android/
-export_presets.cfg
+# export_presets.cfg is committed on purpose - it has no secrets in it.
+# Release keystore paths and passwords must never be added to it.
 
 # Godot exports
 /build/
