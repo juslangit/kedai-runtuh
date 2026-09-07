@@ -1,4 +1,4 @@
-[gd_scene load_steps=16 format=3]
+[gd_scene load_steps=17 format=3]
 
 [ext_resource type="Script" path="res://scripts/game.gd" id="1_game"]
 [ext_resource type="Script" path="res://scripts/hook.gd" id="2_hook"]
@@ -6,6 +6,7 @@
 [ext_resource type="Script" path="res://scripts/rope.gd" id="4_rope"]
 [ext_resource type="PackedScene" path="res://assets/models/table/scene.gltf" id="5_table"]
 [ext_resource type="Script" path="res://scripts/fit_model.gd" id="6_fit"]
+[ext_resource type="PackedScene" path="res://scenes/settings_panel.tscn" id="7_settings"]
 
 [sub_resource type="Environment" id="Env_1"]
 background_mode = 1
@@ -319,11 +320,11 @@ layout_mode = 2
 size_flags_horizontal = 4
 text = "MAIN MENU"
 
-[node name="Sound" type="Button" parent="UI/PauseMenu/Center/Panel/Box"]
+[node name="Settings" type="Button" parent="UI/PauseMenu/Center/Panel/Box"]
 custom_minimum_size = Vector2(560, 0)
 layout_mode = 2
 size_flags_horizontal = 4
-text = "SOUND  ON"
+text = "SETTINGS"
 
 [node name="GameOver" type="Control" parent="UI"]
 anchors_preset = 15
@@ -419,3 +420,5 @@ custom_minimum_size = Vector2(560, 0)
 layout_mode = 2
 size_flags_horizontal = 4
 text = "MAIN MENU"
+
+[node name="SettingsPanel" parent="UI" instance=ExtResource("7_settings")]

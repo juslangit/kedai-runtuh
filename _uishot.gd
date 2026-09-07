@@ -39,6 +39,12 @@ func _ready() -> void:
 	main._pause()
 	for i in 6: await get_tree().process_frame
 	await _shot("ui_pause")
+	# and settings, reached from the pause menu
+	main.get_node("UI/PauseMenu/Center/Panel/Box/Settings").pressed.emit()
+	for i in 6: await get_tree().process_frame
+	await _shot("ui_pause_settings")
+	main.get_node("UI/SettingsPanel").close()
+	for i in 4: await get_tree().process_frame
 	main._resume()
 
 	# 4. game over

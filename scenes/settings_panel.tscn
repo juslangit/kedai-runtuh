@@ -1,0 +1,145 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/settings_panel.gd" id="1_set"]
+
+[sub_resource type="StyleBoxFlat" id="Scrim_set"]
+bg_color = Color(0.0784314, 0.054902, 0.0470588, 0.82)
+
+[node name="SettingsPanel" type="Control"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_set")
+
+[node name="Scrim" type="PanelContainer" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("Scrim_set")
+
+[node name="Center" type="CenterContainer" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Panel" type="PanelContainer" parent="Center"]
+layout_mode = 2
+
+[node name="Box" type="VBoxContainer" parent="Center/Panel"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="Title" type="Label" parent="Center/Panel/Box"]
+layout_mode = 2
+theme_type_variation = &"PanelTitle"
+text = "SETTINGS"
+horizontal_alignment = 1
+
+[node name="Gap" type="Control" parent="Center/Panel/Box"]
+custom_minimum_size = Vector2(0, 10)
+layout_mode = 2
+
+[node name="Music" type="Button" parent="Center/Panel/Box"]
+custom_minimum_size = Vector2(600, 0)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_type_variation = &"SettingsButton"
+text = "MUSIC   ON"
+
+[node name="Sfx" type="Button" parent="Center/Panel/Box"]
+custom_minimum_size = Vector2(600, 0)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_type_variation = &"SettingsButton"
+text = "SOUND   ON"
+
+[node name="Haptics" type="Button" parent="Center/Panel/Box"]
+custom_minimum_size = Vector2(600, 0)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_type_variation = &"SettingsButton"
+text = "VIBRATION   ON"
+
+[node name="Reset" type="Button" parent="Center/Panel/Box"]
+custom_minimum_size = Vector2(600, 0)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_type_variation = &"SettingsButton"
+text = "ERASE BEST SCORE  (0)"
+
+[node name="Credits" type="Button" parent="Center/Panel/Box"]
+custom_minimum_size = Vector2(600, 0)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_type_variation = &"SettingsButton"
+text = "CREDITS"
+
+[node name="Gap2" type="Control" parent="Center/Panel/Box"]
+custom_minimum_size = Vector2(0, 10)
+layout_mode = 2
+
+[node name="Back" type="Button" parent="Center/Panel/Box"]
+custom_minimum_size = Vector2(600, 0)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_type_variation = &"PrimaryButton"
+text = "BACK"
+
+[node name="CreditsView" type="Control" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Scrim" type="PanelContainer" parent="CreditsView"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("Scrim_set")
+
+[node name="Center" type="CenterContainer" parent="CreditsView"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Panel" type="PanelContainer" parent="CreditsView/Center"]
+layout_mode = 2
+
+[node name="Box" type="VBoxContainer" parent="CreditsView/Center/Panel"]
+layout_mode = 2
+theme_override_constants/separation = 18
+
+[node name="Title" type="Label" parent="CreditsView/Center/Panel/Box"]
+layout_mode = 2
+theme_type_variation = &"PanelTitle"
+text = "CREDITS"
+horizontal_alignment = 1
+
+[node name="Body" type="RichTextLabel" parent="CreditsView/Center/Panel/Box"]
+custom_minimum_size = Vector2(620, 430)
+layout_mode = 2
+bbcode_enabled = true
+fit_content = true
+scroll_active = false
+
+[node name="Gap" type="Control" parent="CreditsView/Center/Panel/Box"]
+custom_minimum_size = Vector2(0, 12)
+layout_mode = 2
+
+[node name="Back" type="Button" parent="CreditsView/Center/Panel/Box"]
+custom_minimum_size = Vector2(600, 0)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_type_variation = &"PrimaryButton"
+text = "BACK"

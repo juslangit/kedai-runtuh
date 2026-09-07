@@ -58,6 +58,10 @@ static func _build() -> Theme:
 	t.set_type_variation("PrimaryButton", "Button")
 	_button_style(t, "PrimaryButton", RED, RED_DARK, CREAM, 58)
 
+	# --- settings rows: same look, smaller so a list of them fits -----------
+	t.set_type_variation("SettingsButton", "Button")
+	_button_style(t, "SettingsButton", CREAM_DEEP, Color("c19a63"), BROWN, 38, 22, 30)
+
 	# --- small round icon button ------------------------------------------
 	t.set_type_variation("IconButton", "Button")
 	_button_style(t, "IconButton", CREAM_DEEP, Color("c19a63"), BROWN, 40, 40, 0)
@@ -105,6 +109,14 @@ static func _build() -> Theme:
 	t.set_type_variation("Celebrate", "Label")
 	t.set_color("font_color", "Celebrate", Color("b07d1e"))
 	t.set_font_size("font_size", "Celebrate", 36)
+
+	t.set_color("default_color", "RichTextLabel", BROWN)
+	t.set_font_size("normal_font_size", "RichTextLabel", 27)
+	t.set_font_size("bold_font_size", "RichTextLabel", 29)
+
+	t.set_type_variation("Fine", "Label")
+	t.set_color("font_color", "Fine", BROWN_SOFT)
+	t.set_font_size("font_size", "Fine", 26)
 
 	t.set_type_variation("PanelScoreKey", "Label")
 	t.set_color("font_color", "PanelScoreKey", BROWN_SOFT)

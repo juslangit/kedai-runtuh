@@ -114,7 +114,7 @@ var _recent: Array[String] = []
 @onready var hint_label: Label = $UI/Hud/Hint
 @onready var pause_button: Button = $UI/Hud/Pause
 @onready var pause_menu: Control = $UI/PauseMenu
-@onready var pause_sound_button: Button = $UI/PauseMenu/Center/Panel/Box/Sound
+@onready var settings_panel: Control = $UI/SettingsPanel
 @onready var game_over_panel: Control = $UI/GameOver
 @onready var reason_label: Label = $UI/GameOver/Center/Panel/Box/Reason
 @onready var new_best_label: Label = $UI/GameOver/Center/Panel/Box/NewBest
@@ -140,7 +140,9 @@ func _ready() -> void:
 	$UI/PauseMenu/Center/Panel/Box/Resume.pressed.connect(_resume)
 	$UI/PauseMenu/Center/Panel/Box/Restart.pressed.connect(_restart)
 	$UI/PauseMenu/Center/Panel/Box/MainMenu.pressed.connect(_to_main_menu)
-	pause_sound_button.pressed.connect(_toggle_sound)
+	$UI/PauseMenu/Center/Panel/Box/Settings.pressed.connect(settings_panel.open)
+	# the best score can be erased in settings, so re-read it on the way back
+	settings_panel.closed.connect(_refresh_pause_scores)
 	$UI/GameOver/Center/Panel/Box/Again.pressed.connect(_restart)
 	$UI/GameOver/Center/Panel/Box/MainMenu.pressed.connect(_to_main_menu)
 
@@ -484,9 +486,7 @@ func _game_over(reason: String) -> void:
 func _pause() -> void:
 	if state == State.OVER or get_tree().paused:
 		return
-	$UI/PauseMenu/Center/Panel/Box/Scores/Current/Value.text = str(score)
-	$UI/PauseMenu/Center/Panel/Box/Scores/Best/Value.text = str(SaveData.high_score)
-	_refresh_sound_button()
+	_refresh_pause_scores()
 	pause_menu.show()
 	get_tree().paused = true
 	$UI/PauseMenu/Center/Panel/Box/Resume.grab_focus()
@@ -504,13 +504,11 @@ func _to_main_menu() -> void:
 	get_tree().change_scene_to_file("res://scenes/main_menu.tscn")
 
 
-func _toggle_sound() -> void:
-	SaveData.toggle_sound()
-	_refresh_sound_button()
-
-
-func _refresh_sound_button() -> void:
-	pause_sound_button.text = "SOUND  %s" % ("ON" if SaveData.sound_on else "OFF")
+func _refresh_pause_scores() -> void:
+	$UI/PauseMenu/Center/Panel/Box/Scores/Current/Value.text = str(score)
+	$UI/PauseMenu/Center/Panel/Box/Scores/Best/Value.text = str(SaveData.high_score)
+	best = SaveData.high_score
+	hud_best_label.text = str(best)
 
 
 ## A white blink and a word, for landing it dead centre.

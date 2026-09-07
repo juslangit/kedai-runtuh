@@ -21,9 +21,10 @@ On desktop, tap = left mouse click, or press **Space**. **Escape** pauses
 
 | Screen | What is on it |
 |---|---|
-| Main menu | Title, **PLAY**, **SOUND** (on/off), **QUIT**, and your best score |
+| Main menu | Title, **PLAY**, **SETTINGS**, **QUIT**, and your best score |
 | In game | Score and best score top left, pause button top right |
-| Pause | Score and best score, **RESUME**, **RESTART**, **MAIN MENU**, **SOUND** |
+| Pause | Score and best score, **RESUME**, **RESTART**, **MAIN MENU**, **SETTINGS** |
+| Settings | Music, Sound, Vibration, Erase best score, Credits — reachable from both menus |
 | Game over | Why you lost, your score, your best, and **NEW BEST!** if you beat it |
 
 All interface text is in English. *Kedai Runtuh* stays as the game's name.

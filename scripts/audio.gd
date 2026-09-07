@@ -43,6 +43,7 @@ func _ready() -> void:
 	# Sound must keep working while the tree is paused, or the pause menu's own
 	# buttons would be silent.
 	process_mode = Node.PROCESS_MODE_ALWAYS
+	_make_buses()
 
 	for key in SFX:
 		var takes: Array[AudioStream] = []
@@ -57,13 +58,29 @@ func _ready() -> void:
 	for i in SFX_PLAYERS:
 		var p := AudioStreamPlayer.new()
 		p.process_mode = Node.PROCESS_MODE_ALWAYS
+		p.bus = "SFX"
 		add_child(p)
 		_players.append(p)
 
 	_music = AudioStreamPlayer.new()
 	_music.process_mode = Node.PROCESS_MODE_ALWAYS
 	_music.volume_db = MUSIC_VOLUME_DB
+	_music.bus = "Music"
 	add_child(_music)
+
+	# The buses exist now, so the saved settings can finally be applied.
+	SaveData.apply_audio()
+
+
+## Two buses, so music and effects can be silenced independently.
+func _make_buses() -> void:
+	for bus_name in ["Music", "SFX"]:
+		if AudioServer.get_bus_index(bus_name) >= 0:
+			continue
+		AudioServer.add_bus()
+		var i := AudioServer.bus_count - 1
+		AudioServer.set_bus_name(i, bus_name)
+		AudioServer.set_bus_send(i, "Master")
 
 
 ## Play one sound. `pitch` shifts it; `spread` randomises the pitch a little on
