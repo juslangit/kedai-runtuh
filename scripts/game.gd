@@ -67,21 +67,56 @@ var _visuals := {}
 @onready var preview: MeshInstance3D = $Hook/Preview
 @onready var pieces: Node3D = $Pieces
 @onready var camera_rig: Node3D = $CameraRig
-@onready var score_label: Label = $UI/Score
-@onready var hint_label: Label = $UI/Hint
+@onready var ui: CanvasLayer = $UI
+@onready var hud: Control = $UI/Hud
+@onready var score_label: Label = $UI/Hud/Scores/ScoreValue
+@onready var hud_best_label: Label = $UI/Hud/Scores/BestValue
+@onready var hint_label: Label = $UI/Hud/Hint
+@onready var pause_button: Button = $UI/Hud/Pause
+@onready var pause_menu: Control = $UI/PauseMenu
+@onready var pause_sound_button: Button = $UI/PauseMenu/Center/Panel/Box/Sound
 @onready var game_over_panel: Control = $UI/GameOver
-@onready var result_label: Label = $UI/GameOver/Result
+@onready var reason_label: Label = $UI/GameOver/Center/Panel/Box/Reason
+@onready var new_best_label: Label = $UI/GameOver/Center/Panel/Box/NewBest
 
 
 func _ready() -> void:
+	# Run even while the tree is paused, so the pause menu can be opened and
+	# closed. _process bails out immediately when paused, so nothing moves.
+	process_mode = Node.PROCESS_MODE_ALWAYS
+	ui.process_mode = Node.PROCESS_MODE_ALWAYS
+	hud.theme = UITheme.get_theme()
+	pause_menu.theme = UITheme.get_theme()
+	game_over_panel.theme = UITheme.get_theme()
+	pause_button.icon = UITheme.pause_icon(52, UITheme.BROWN)
+
 	_prepare_models()
-	best = _load_best()
+	best = SaveData.high_score
+	hud_best_label.text = str(best)
+	pause_menu.hide()
 	game_over_panel.hide()
-	$UI/GameOver/Again.pressed.connect(_restart)
+
+	pause_button.pressed.connect(_pause)
+	$UI/PauseMenu/Center/Panel/Box/Resume.pressed.connect(_resume)
+	$UI/PauseMenu/Center/Panel/Box/Restart.pressed.connect(_restart)
+	$UI/PauseMenu/Center/Panel/Box/MainMenu.pressed.connect(_to_main_menu)
+	pause_sound_button.pressed.connect(_toggle_sound)
+	$UI/GameOver/Center/Panel/Box/Again.pressed.connect(_restart)
+	$UI/GameOver/Center/Panel/Box/MainMenu.pressed.connect(_to_main_menu)
+
 	_arm_next_item()
 
 
 func _unhandled_input(event: InputEvent) -> void:
+	# Escape on desktop, the back button on Android.
+	if event.is_action_pressed("ui_cancel"):
+		if get_tree().paused:
+			_resume()
+		elif state != State.OVER:
+			_pause()
+		get_viewport().set_input_as_handled()
+		return
+
 	var tapped := false
 	if event is InputEventScreenTouch and event.pressed:
 		tapped = true
@@ -92,16 +127,17 @@ func _unhandled_input(event: InputEvent) -> void:
 
 	if not tapped:
 		return
+	# While the pause menu is up, taps belong to its buttons, not to the game.
+	if get_tree().paused:
+		return
 
 	if state == State.AIMING:
 		_drop()
-	elif state == State.OVER and game_over_panel.visible:
-		# Ignore taps while the tower is still coming down, so a fast tapper
-		# does not skip past the collapse they just caused.
-		_restart()
 
 
 func _process(delta: float) -> void:
+	if get_tree().paused:
+		return
 	_follow_tower(delta)
 
 	# Anything falling off the table ends the run — that is also how a
@@ -242,19 +278,58 @@ func _game_over(reason: String) -> void:
 	state = State.OVER
 	active_piece = null
 	preview.hide()
+	pause_button.hide()
 	_collapse_tower()
 
-	if score > best:
-		best = score
-		_save_best(best)
+	# The record lives in SaveData, not in this scene, so restarting cannot
+	# reset it — a fresh scene simply reads the same stored number back.
+	var is_record: bool = SaveData.submit_score(score)
+	best = SaveData.high_score
 
-	result_label.text = "%s\n\n%d tersusun\nterbaik: %d\n\ntap to try again" % [reason, score, best]
+	reason_label.text = reason
+	new_best_label.visible = is_record
+	$UI/GameOver/Center/Panel/Box/Scores/Current/Value.text = str(score)
+	$UI/GameOver/Center/Panel/Box/Scores/Best/Value.text = str(best)
+	hud_best_label.text = str(best)
 
 	# Let the tower actually go over before the panel covers it. This second and
 	# a bit is the shot people record, so it is worth waiting for.
 	await get_tree().create_timer(GAME_OVER_DELAY).timeout
 	if is_inside_tree():
 		game_over_panel.show()
+		$UI/GameOver/Center/Panel/Box/Again.grab_focus()
+
+
+# --- pause -----------------------------------------------------------------
+
+func _pause() -> void:
+	if state == State.OVER or get_tree().paused:
+		return
+	$UI/PauseMenu/Center/Panel/Box/Scores/Current/Value.text = str(score)
+	$UI/PauseMenu/Center/Panel/Box/Scores/Best/Value.text = str(SaveData.high_score)
+	_refresh_sound_button()
+	pause_menu.show()
+	get_tree().paused = true
+	$UI/PauseMenu/Center/Panel/Box/Resume.grab_focus()
+
+
+func _resume() -> void:
+	get_tree().paused = false
+	pause_menu.hide()
+
+
+func _to_main_menu() -> void:
+	get_tree().paused = false
+	get_tree().change_scene_to_file("res://scenes/main_menu.tscn")
+
+
+func _toggle_sound() -> void:
+	SaveData.toggle_sound()
+	_refresh_sound_button()
+
+
+func _refresh_sound_button() -> void:
+	pause_sound_button.text = "BUNYI  %s" % ("ON" if SaveData.sound_on else "OFF")
 
 
 ## Losing unsticks the whole tower and gives it a shove, so every run ends with
@@ -277,6 +352,7 @@ func _collapse_tower() -> void:
 
 
 func _restart() -> void:
+	get_tree().paused = false
 	get_tree().reload_current_scene()
 
 
@@ -408,20 +484,3 @@ func _make_material(color: Color) -> StandardMaterial3D:
 	mat.albedo_color = color
 	mat.roughness = 0.75
 	return mat
-
-
-# --- best score, kept between sessions -------------------------------------
-
-const SAVE_PATH := "user://kedai_runtuh.cfg"
-
-func _load_best() -> int:
-	var cfg := ConfigFile.new()
-	if cfg.load(SAVE_PATH) != OK:
-		return 0
-	return int(cfg.get_value("score", "best", 0))
-
-
-func _save_best(value: int) -> void:
-	var cfg := ConfigFile.new()
-	cfg.set_value("score", "best", value)
-	cfg.save(SAVE_PATH)

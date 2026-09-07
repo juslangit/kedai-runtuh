@@ -12,8 +12,12 @@ config_version=5
 
 config/name="Kedai Runtuh"
 config/description="Stack the mamak order as high as you can before it collapses."
-run/main_scene="res://scenes/main.tscn"
+run/main_scene="res://scenes/main_menu.tscn"
 config/features=PackedStringArray("4.7", "Forward Plus")
+
+[autoload]
+
+SaveData="*res://scripts/save_data.gd"
 
 [display]
 

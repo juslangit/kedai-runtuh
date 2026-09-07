@@ -12,9 +12,44 @@ Built with **Godot 4.7**, portrait, for Android.
 
 ## Running it
 
-Open the folder in Godot 4.7 and press **Play** (F5).
+Open the folder in Godot 4.7 and press **Play** (F5). It starts on the main menu.
 
-On desktop, tap = left mouse click, or press **Space**.
+On desktop, tap = left mouse click, or press **Space**. **Escape** pauses
+(on Android, so does the back button).
+
+## Screens
+
+| Screen | What is on it |
+|---|---|
+| Main menu | Title, **MAIN**, **BUNYI** (sound on/off), **KELUAR**, and your best score |
+| In game | Score and best score top left, pause button top right |
+| Pause | Score and best score, **SAMBUNG**, **MULA SEMULA**, **MENU UTAMA**, **BUNYI** |
+| Game over | Why you lost, your score, your best, and **REKOD BARU!** if you beat it |
+
+### The high score
+
+It lives in `scripts/save_data.gd`, which is an **autoload** — a single object that
+exists outside every scene and stays alive when scenes change. That is what makes
+it safe: starting a new game builds a completely fresh game scene with a score of
+zero, and the high score is not part of that scene, so nothing can reset it. It is
+written to disk (`user://kedai_runtuh.cfg`) the moment it changes.
+
+The sound setting is stored the same way.
+
+> **Note on sound:** the BUNYI button really does mute the game's master audio
+> bus, and remembers the setting between sessions. There is no audio in the game
+> yet, so today there is nothing to hear — the switch is wired to the real thing
+> and will work the moment the first sound is added.
+
+### Changing how the UI looks
+
+Everything — button colours, corner radius, font sizes, panel style — is in
+`scripts/ui_theme.gd`. No scene sets its own colours. The palette is at the top of
+that file.
+
+Buttons pick a look with `theme_type_variation` on the node:
+`PrimaryButton` for the big red one, `IconButton` for the small round one, and
+nothing at all for the ordinary cream one.
 
 ## The two ways to lose
 
@@ -28,13 +63,17 @@ On desktop, tap = left mouse click, or press **Space**.
 ## Where everything is
 
 ```
-project.godot        engine settings — portrait size, gravity
-scenes/main.tscn     the only scene: camera, light, table, hook, UI
-scripts/game.gd      the whole game, and the list of food
-scripts/hook.gd      the pendulum the food hangs from
-scripts/rope.gd      the rope: a simulated rope, decoration only
-scripts/fit_model.gd scales a decorative model to line up with the game
-assets/models/       Sketchfab .glb files go here
+project.godot         engine settings — portrait size, gravity, autoload
+scenes/main_menu.tscn the title screen
+scenes/main.tscn      the game: camera, light, kitchen, table, hook, UI
+scripts/game.gd       the whole game, and the list of food
+scripts/hook.gd       the pendulum the food hangs from
+scripts/rope.gd       the rope: simulated, decoration only
+scripts/fit_model.gd  scales a decorative model to line up with the game
+scripts/save_data.gd  autoload: high score and sound, kept between sessions
+scripts/ui_theme.gd   every colour and size in the UI, in one place
+scripts/main_menu.gd  the title screen
+assets/models/        Sketchfab models
 ```
 
 ## Adding a new piece of food
@@ -106,8 +145,18 @@ It plays about six runs a minute and prints the score for each, which is how the
 tuning above was arrived at. To check how it *looks* rather than how it plays,
 `res://_shot.tscn` builds a tower and saves screenshots.
 
-(The `_test*`, `_inspect*` and `_shot*` files are development tools, not part of
-the game.)
+Other development scenes, all run the same way:
+
+| Scene | What it does |
+|---|---|
+| `_test.tscn` | Plays the game automatically and prints the score |
+| `_inspect.tscn` | Lists every food item's box against what its model fits to |
+| `_shot.tscn` | Builds a tower and saves screenshots |
+| `_uishot.tscn` | Saves a screenshot of the menu, HUD, pause menu and game over |
+| `_menushot.tscn` | Just the main menu, for iterating on it quickly |
+| `_persist.tscn` | Checks the high score survives a restart and a worse run |
+
+(Everything starting with `_` is a development tool, not part of the game.)
 
 ## Assets
 

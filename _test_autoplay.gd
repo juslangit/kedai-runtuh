@@ -12,7 +12,7 @@ func _ready() -> void:
 		ticks += 1
 		if main.state == 2:
 			print("score=%d height=%.2f msg=%s" % [main.score, main.highest_y,
-				main.result_label.text.split("\n")[0]])
+				main.reason_label.text])
 			get_tree().quit(); return
 		if main.state == 0 and absf(main.hook.position.x - _aim(main)) < 0.10:
 			main._drop()
