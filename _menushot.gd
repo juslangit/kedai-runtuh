@@ -1,5 +1,5 @@
 extends Node
-const OUT := "/Users/juslangit/Desktop/project/kedai-runtuh/press"
+const OUT := "/Users/juslangit/Desktop/project/game/kedai-runtuh/press"
 func _ready() -> void:
 	SaveData.high_score = 23
 	var menu = load("res://scenes/main_menu.tscn").instantiate()

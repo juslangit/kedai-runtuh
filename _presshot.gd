@@ -1,6 +1,6 @@
 extends Node
 ## Renders portfolio-quality stills at full portrait resolution.
-const OUT := "/Users/juslangit/Desktop/project/kedai-runtuh/press"
+const OUT := "/Users/juslangit/Desktop/project/game/kedai-runtuh/press"
 func _ready() -> void:
 	SaveData.high_score = 23
 	# 1. main menu

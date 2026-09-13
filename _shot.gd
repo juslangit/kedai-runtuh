@@ -1,7 +1,7 @@
 extends Node
 ## Plays the game and saves a screenshot the first time it reaches each of a few
 ## scores, so the art can be checked at different tower heights.
-const OUT := "/Users/juslangit/Desktop/project/kedai-runtuh/press"
+const OUT := "/Users/juslangit/Desktop/project/game/kedai-runtuh/press"
 const AT := [3, 6, 9]
 func _ready() -> void:
 	DirAccess.make_dir_recursive_absolute(OUT)
