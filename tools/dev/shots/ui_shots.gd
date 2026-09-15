@@ -1,6 +1,7 @@
 extends Node
 ## Captures each screen so the UI can be checked without playing by hand.
-const OUT := "/private/tmp/claude-501/-Users-juslangit/a1ac5792-094c-4962-80d1-46c4e82ee111/scratchpad/shots"
+## Saves to build/shots/, which git ignores: these are for checking, not keeping.
+var OUT := ProjectSettings.globalize_path("res://build/shots")
 
 func _ready() -> void:
 	DirAccess.make_dir_recursive_absolute(OUT)

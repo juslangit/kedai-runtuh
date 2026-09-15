@@ -1,6 +1,6 @@
 extends Node
 ## Renders portfolio-quality stills at full portrait resolution.
-const OUT := "/Users/juslangit/Desktop/project/game/kedai-runtuh/press"
+var OUT := ProjectSettings.globalize_path("res://press")
 func _ready() -> void:
 	SaveData.high_score = 23
 	# 1. main menu

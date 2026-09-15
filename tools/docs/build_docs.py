@@ -60,7 +60,7 @@ HERO = ("press/03_tower_9.png",
 # (four to a row). The date under each picture is the file's own, so an old screenshot says
 # it is old.
 #
-# press/ holds the portfolio stills rendered by _presshot.gd for BEHANCE.md. docs/shots/ holds
+# press/ holds the portfolio stills rendered by tools/dev/shots/press_shots.gd for BEHANCE.md. docs/shots/ holds
 # the extra moments captured for this page on 2026-09-15 (the first hang, a drop, the pause
 # menu, a tall tower and a collapse in progress), all 810 x 1440 from the running game.
 
@@ -95,7 +95,7 @@ GALLERIES = [
         ("press/06_credits.png",
          "The in-game credits: the CC-BY-4.0 model authors the licence requires, the CC0 sound sources, and Godot."),
         ("icon.png",
-         "The app icon, drawn in code by _makeicon.gd: a stack of dishes on a dark shelf, readable at launcher size."),
+         "The app icon, drawn in code by tools/dev/icon/make_icon.gd: a stack of dishes on a dark shelf, readable at launcher size."),
     ]),
 ]
 
@@ -113,23 +113,23 @@ PIPELINE = [
     ("Grey-box", "Primitive shapes in Godot: swinging hook, one-tap drop, physics stacking, score and restart. Gate M4: is it fun?",
      "scenes/main.tscn, scripts/game.gd"),
     ("Autoplay", "A bot plays the game with no window and prints a score distribution, so tuning is measured, not guessed.",
-     "_test.tscn, _test_autoplay.gd"),
+     "tools/dev/checks/autoplay.gd"),
     ("Real 3D models", "Three CC-BY-4.0 Sketchfab models (food pack, kitchen, table), each fitted to its physics box, never the reverse.",
      "assets/models/, scripts/fit_model.gd"),
     ("Rope and pendulum", "A sine-driven pendulum hook, a simulated rope that is decoration only, a righting torque and sleeping towers.",
      "scripts/hook.gd, scripts/rope.gd"),
     ("Look at it", "Screenshot scenes render the game at set moments, because only a picture shows a dark frame or a tiny tower.",
-     "_shot.gd, _uishot.gd, _menushot.gd"),
+     "tools/dev/shots/"),
     ("Interface", "Main menu, HUD, pause, game over and settings from one theme file, with every word in English.",
      "scripts/ui_theme.gd, scenes/"),
     ("Sound and feel", "CC0 music and effects, haptics, a creak before the fall and a slow-motion collapse.",
      "assets/audio/, scripts/audio.gd, scripts/haptics.gd"),
     ("Measured checks", "Scenes that measure one claim each: the PERFECT rate, leaning pieces, jitter, waking, saving, settings.",
-     "_perfecttest.gd, _jittertest.gd, _persist.gd"),
+     "tools/dev/checks/"),
     ("Android export", "JDK and Android tools from Homebrew, GL Compatibility renderer, arm64 and x86_64, debug-signed APK.",
      "build-android.sh, export_presets.cfg"),
     ("Press stills", "Portfolio stills rendered at 810 x 1440 and a ready-to-paste Behance write-up with the required credits.",
-     "_presshot.gd, press/, BEHANCE.md"),
+     "tools/dev/shots/press_shots.gd, press/, BEHANCE.md"),
     ("Project record", "This page, rebuilt from the notes, the screenshots and git whenever the game changes.",
      "tools/docs/build_docs.py, docs/"),
 ]
@@ -152,9 +152,9 @@ TOOLS = [
 # matching file is listed with the comment at its top.
 CATALOGUES = [
     ("checks-scenes", "Checks and screenshot scenes",
-     "Development scenes at the project root. Each runs from the command line as res://_name.tscn "
-     "(the autoplay bot as res://_test.tscn), and the Android export leaves every _ file out.",
-     ["_*.gd"]),
+     "Development scenes in tools/dev/. Each runs from the command line as "
+     "res://tools/dev/<folder>/<name>.tscn, and the Android export leaves tools/ out.",
+     ["tools/dev/*/*.gd"]),
     ("checks-game", "Game scripts",
      "The game itself. SaveData and Audio are autoloads; the rest hang off the scenes.",
      ["scripts/*.gd"]),
@@ -177,7 +177,7 @@ def counts():
         ("Food items", str(food_items())),
         ("Sound files", str(len(sounds))),
         ("Game scripts", str(len(files("scripts/*.gd")))),
-        ("Dev scenes", str(len(files("_*.gd")))),
+        ("Dev scenes", str(len(files("tools/dev/*/*.gd")))),
         ("Commits", git("rev-list", "--count", "HEAD").strip()),
         ("Decisions", str(decisions())),
     ]
