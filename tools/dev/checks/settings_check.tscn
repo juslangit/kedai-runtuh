@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3]
 
-[ext_resource type="Script" path="res://_settingstest.gd" id="1_s"]
+[ext_resource type="Script" path="res://tools/dev/checks/settings_check.gd" id="1_s"]
 
 [node name="SettingsTest" type="Node"]
 script = ExtResource("1_s")

@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3]
 
-[ext_resource type="Script" path="res://_persist.gd" id="1_p"]
+[ext_resource type="Script" path="res://tools/dev/checks/persist.gd" id="1_p"]
 
 [node name="Persist" type="Node"]
 script = ExtResource("1_p")

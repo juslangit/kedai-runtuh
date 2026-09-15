@@ -103,6 +103,14 @@ scripts/save_data.gd  autoload: high score and sound, kept between sessions
 scripts/ui_theme.gd   every colour and size in the UI, in one place
 scripts/main_menu.gd  the title screen
 assets/models/        Sketchfab models
+assets/audio/         CC0 music and sound effects
+tools/dev/checks/     headless scenes that play or test the game (not shipped)
+tools/dev/shots/      scenes that render screenshots (not shipped)
+tools/dev/icon/       draws icon.png, icon_192.png and icon_432.png
+tools/docs/           builds docs/index.html, the project record
+press/                portfolio stills, for BEHANCE.md
+art/concepts/         art style concepts
+build-android.sh      builds build/kedai-runtuh.apk
 ```
 
 ## Adding a new piece of food
@@ -174,7 +182,7 @@ a one-liner.
 A Sketchfab pack is one file containing dozens of objects. To list them:
 
 ```bash
-/Applications/Godot.app/Contents/MacOS/Godot --headless --path . res://_inspect.tscn
+/Applications/Godot.app/Contents/MacOS/Godot --headless --path . res://tools/dev/checks/inspect.tscn
 ```
 
 That prints every item's target size next to what the model actually fits to, so
@@ -216,25 +224,35 @@ Godot can run the game with no window, so a script can play it automatically and
 print the score. Useful for checking a tuning change across several runs quickly:
 
 ```bash
-/Applications/Godot.app/Contents/MacOS/Godot --headless --path . res://_test.tscn
+/Applications/Godot.app/Contents/MacOS/Godot --headless --path . res://tools/dev/checks/autoplay.tscn
 ```
 
 It plays about six runs a minute and prints the score for each, which is how the
 tuning above was arrived at. To check how it *looks* rather than how it plays,
-`res://_shot.tscn` builds a tower and saves screenshots.
+`res://tools/dev/shots/tower_shots.tscn` builds a tower and saves screenshots.
 
 Other development scenes, all run the same way:
 
 | Scene | What it does |
 |---|---|
-| `_test.tscn` | Plays the game automatically and prints the score |
-| `_inspect.tscn` | Lists every food item's box against what its model fits to |
-| `_shot.tscn` | Builds a tower and saves screenshots |
-| `_uishot.tscn` | Saves a screenshot of the menu, HUD, pause menu and game over |
-| `_menushot.tscn` | Just the main menu, for iterating on it quickly |
-| `_persist.tscn` | Checks the high score survives a restart and a worse run |
+| `checks/autoplay.tscn` | Plays the game automatically and prints the score |
+| `checks/inspect.tscn` | Lists every food item's box against what its model fits to |
+| `checks/persist.tscn` | Checks the high score survives a restart and a worse run |
+| `checks/perfect_check.tscn` | Measures how often a drop is PERFECT |
+| `checks/lean_check.tscn` | Measures pieces coming to rest on their edge |
+| `checks/jitter_check.tscn` | Checks a settled tower actually goes still |
+| `checks/wake_check.tscn` | Checks a sleeping tower still reacts to the next landing |
+| `checks/settings_check.tscn` | Checks each setting reaches what it controls, and is saved |
+| `checks/audio_check.tscn` | Checks every sound file loads and the music loops |
+| `shots/tower_shots.tscn` | Builds a tower and saves screenshots to `press/` |
+| `shots/press_shots.tscn` | Renders the portfolio stills in `press/` |
+| `shots/menu_shots.tscn` | Just the main menu, settings and credits, for iterating quickly |
+| `shots/ui_shots.tscn` | Screenshots of the menu, HUD, pause menu and game over, to `build/shots/` |
+| `icon/make_icon.tscn` | Redraws the app icon at all three sizes |
 
-(Everything starting with `_` is a development tool, not part of the game.)
+All of them live in `tools/dev/` and run as `res://tools/dev/<folder>/<name>.tscn`.
+The Android export leaves `tools/` out, and `press/`, `docs/` and `art/` each hold a
+`.gdignore` so Godot never imports those images into the game.
 
 ## Putting it on an Android phone
 
