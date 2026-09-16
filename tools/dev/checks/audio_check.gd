@@ -3,6 +3,8 @@ extends Node
 ## loads, the music is set to loop, playback actually starts, and the mute toggle
 ## really reaches the master bus.
 func _ready() -> void:
+	var was_music := SaveData.music_on
+	var was_sfx := SaveData.sfx_on
 	var bad := 0
 	print("--- sound files ---")
 	for key in Audio.SFX:
@@ -37,11 +39,26 @@ func _ready() -> void:
 	print("  sfx players active after 7 plays: %d" % active)
 
 	print("--- mute toggle ---")
-	var bus := AudioServer.get_bus_index("Master")
-	SaveData.set_sound(false)
-	print("  sound off -> master muted = %s" % AudioServer.is_bus_mute(bus))
-	SaveData.set_sound(true)
-	print("  sound on  -> master muted = %s" % AudioServer.is_bus_mute(bus))
+	# Music and effects sit on their own buses, so each switch must mute its own
+	# bus and leave the other one alone.
+	var music_bus := AudioServer.get_bus_index("Music")
+	var sfx_bus := AudioServer.get_bus_index("SFX")
+	SaveData.set_music(false)
+	print("  music off -> music muted=%s  sfx muted=%s" % [
+		AudioServer.is_bus_mute(music_bus), AudioServer.is_bus_mute(sfx_bus)])
+	SaveData.set_music(true)
+	SaveData.set_sfx(false)
+	print("  sfx off   -> music muted=%s  sfx muted=%s" % [
+		AudioServer.is_bus_mute(music_bus), AudioServer.is_bus_mute(sfx_bus)])
+	SaveData.set_sfx(true)
+	print("  both on   -> music muted=%s  sfx muted=%s" % [
+		AudioServer.is_bus_mute(music_bus), AudioServer.is_bus_mute(sfx_bus)])
+
+	# These toggles write to the real save file, so put back whatever was set
+	# before the check ran rather than leaving both switches on.
+	SaveData.set_music(was_music)
+	SaveData.set_sfx(was_sfx)
+	print("  restored  -> music=%s sfx=%s" % [SaveData.music_on, SaveData.sfx_on])
 
 	print("RESULT: %s" % ("all files present" if bad == 0 else "%d MISSING" % bad))
 	get_tree().quit()
