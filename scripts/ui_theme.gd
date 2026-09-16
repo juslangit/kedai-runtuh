@@ -8,9 +8,9 @@ extends RefCounted
 ## Buttons come in three kinds, chosen with `theme_type_variation` on the node:
 ##   (none)          — the ordinary cream button
 ##   "PrimaryButton" — the big red one you are meant to press
-##   "IconButton"    — the small round one, used for pause
+##   "IconButton"    — the round glossy one, used for pause
 
-# The kedai palette. These are picked to sit with the food and the kitchen.
+# The kedai palette, picked to sit with the painted mamak stall.
 const CREAM        := Color("f6efe1")
 const CREAM_DEEP   := Color("e6d7b8")
 const BROWN        := Color("3a2a20")
@@ -19,23 +19,32 @@ const RED          := Color("c0553c")
 const RED_DARK     := Color("9c4230")
 const GOLD         := Color("dba441")
 const DIM          := Color(0.075, 0.055, 0.043, 0.82)
+const YELLOW       := Color("ffd21f")   # the "PERFECT!" yellow from the concept art
 
-# --- swapping in bought UI artwork ----------------------------------------
+## Lilita One, a chunky rounded display face (SIL Open Font License). Long
+## paragraphs such as the credits stay in Godot's plainer default font.
+const FONT := preload("res://assets/fonts/LilitaOne-Regular.ttf")
+
+# --- painted UI artwork ----------------------------------------------------
 #
-# Right now every button and panel is DRAWN by Godot — rounded boxes, no image
-# files. To use an art pack instead (the Cozy UI Pack, for example), put its PNGs
-# in assets/ui/ and write the filenames in here. Anything left as "" keeps the
-# drawn version, so the game always runs and you can swap one piece at a time.
+# The buttons, panel and pause button are paintings made with OpenArt, cut out
+# by tools/art/process_art.py. Clear a path to "" and that piece goes back to
+# being a rounded box drawn by Godot, so pieces can be swapped one at a time.
 #
-#   margin — the 9-slice border, in pixels of the source PNG: how much of each
-#            edge is frame that must NOT stretch when the button is resized.
-#            Cozy UI's 64px pieces are usually 16 or 20. Too small and the corners
-#            smear; too large and the middle never fills.
+#   margin   — the 9-slice border, in pixels of the PNG: how much of each edge is
+#              frame that must NOT stretch when the button is resized. The pill
+#              ends are round, so their side margin is about half their height.
+#              Too small and the corners smear; too large and the middle never fills.
+#   margin_v — the same for the top and bottom, when it differs from the sides.
+#   tint     — multiplies the colours; used to darken a button while it is pressed.
 const SPRITES := {
-	"button":         {"path": "", "margin": 16},
-	"button_pressed": {"path": "", "margin": 16},
-	"button_primary": {"path": "", "margin": 16},
-	"panel":          {"path": "", "margin": 32},
+	"button":                 {"path": "res://assets/art/ui_button.png", "margin": 64, "margin_v": 40},
+	"button_pressed":         {"path": "res://assets/art/ui_button.png", "margin": 64, "margin_v": 40, "tint": Color(0.86, 0.84, 0.8)},
+	"button_primary":         {"path": "res://assets/art/ui_button_primary.png", "margin": 64, "margin_v": 40},
+	"button_primary_pressed": {"path": "res://assets/art/ui_button_primary.png", "margin": 64, "margin_v": 40, "tint": Color(0.85, 0.8, 0.78)},
+	"icon":                   {"path": "res://assets/art/ui_pause.png", "margin": 0},
+	"icon_pressed":           {"path": "res://assets/art/ui_pause.png", "margin": 0, "tint": Color(0.82, 0.8, 0.8)},
+	"panel":                  {"path": "res://assets/art/ui_panel.png", "margin": 72},
 }
 
 static var _cached: Theme
@@ -50,6 +59,7 @@ static func get_theme() -> Theme:
 
 static func _build() -> Theme:
 	var t := Theme.new()
+	t.default_font = FONT
 
 	# --- ordinary button: cream with a soft brown edge ---------------------
 	_button_style(t, "Button", CREAM_DEEP, Color("c19a63"), BROWN, 46)
@@ -57,10 +67,15 @@ static func _build() -> Theme:
 	# --- the main action: warm red ----------------------------------------
 	t.set_type_variation("PrimaryButton", "Button")
 	_button_style(t, "PrimaryButton", RED, RED_DARK, CREAM, 58)
+	# white letters on the glossy orange pill need a brown edge to stay readable
+	t.set_color("font_outline_color", "PrimaryButton", BROWN)
+	t.set_constant("outline_size", "PrimaryButton", 12)
 
 	# --- settings rows: same look, smaller so a list of them fits -----------
 	t.set_type_variation("SettingsButton", "Button")
-	_button_style(t, "SettingsButton", CREAM_DEEP, Color("c19a63"), BROWN, 38, 22, 30)
+	# 34px of padding makes the row as tall as the painted pill, so its round
+	# ends are not squashed into points
+	_button_style(t, "SettingsButton", CREAM_DEEP, Color("c19a63"), BROWN, 38, 34, 30)
 
 	# --- small round icon button ------------------------------------------
 	t.set_type_variation("IconButton", "Button")
@@ -80,21 +95,29 @@ static func _build() -> Theme:
 	t.set_color("font_color", "Subtitle", CREAM)
 	t.set_color("font_outline_color", "Subtitle", BROWN)
 	t.set_constant("outline_size", "Subtitle", 10)
-	t.set_font_size("font_size", "Subtitle", 34)
+	t.set_font_size("font_size", "Subtitle", 46)
 
 	# HUD text sits over the game, so it needs an outline to stay readable
 	# whatever colour of food happens to be behind it.
 	t.set_type_variation("HudKey", "Label")
-	t.set_color("font_color", "HudKey", Color(1, 1, 1, 0.72))
+	t.set_color("font_color", "HudKey", Color(1, 1, 1, 0.96))
 	t.set_color("font_outline_color", "HudKey", Color(0.08, 0.05, 0.04, 0.85))
 	t.set_constant("outline_size", "HudKey", 10)
-	t.set_font_size("font_size", "HudKey", 30)
+	t.set_font_size("font_size", "HudKey", 40)
 
 	t.set_type_variation("HudValue", "Label")
 	t.set_color("font_color", "HudValue", Color(1, 1, 1, 0.98))
 	t.set_color("font_outline_color", "HudValue", Color(0.08, 0.05, 0.04, 0.9))
-	t.set_constant("outline_size", "HudValue", 12)
-	t.set_font_size("font_size", "HudValue", 64)
+	t.set_constant("outline_size", "HudValue", 16)
+	t.set_font_size("font_size", "HudValue", 84)
+
+	# The PERFECT! pop: big yellow letters with a thick brown edge, as in the
+	# concept art.
+	t.set_type_variation("Perfect", "Label")
+	t.set_color("font_color", "Perfect", YELLOW)
+	t.set_color("font_outline_color", "Perfect", BROWN)
+	t.set_constant("outline_size", "Perfect", 22)
+	t.set_font_size("font_size", "Perfect", 120)
 
 	t.set_type_variation("HudValueSmall", "Label")
 	t.set_color("font_color", "HudValueSmall", Color(1, 1, 1, 0.9))
@@ -111,6 +134,7 @@ static func _build() -> Theme:
 	t.set_font_size("font_size", "Celebrate", 36)
 
 	t.set_color("default_color", "RichTextLabel", BROWN)
+	t.set_font("normal_font", "RichTextLabel", ThemeDB.fallback_font)
 	t.set_font_size("normal_font_size", "RichTextLabel", 27)
 	t.set_font_size("bold_font_size", "RichTextLabel", 29)
 
@@ -135,7 +159,7 @@ static func _build() -> Theme:
 	panel.border_width_top = 6
 	panel.border_width_bottom = 6
 	panel.border_color = CREAM_DEEP
-	panel.set_content_margin_all(44)
+	panel.set_content_margin_all(76)
 	panel.shadow_color = Color(0, 0, 0, 0.35)
 	panel.shadow_size = 24
 	t.set_stylebox("panel", "PanelContainer", panel)
@@ -149,9 +173,14 @@ static func _build() -> Theme:
 ## size and the layout does not shift when the art goes in.
 static func _apply_sprites(t: Theme) -> void:
 	var swaps := [
-		["button", "Button", ["normal", "hover", "focus"]],
+		["button", "Button", ["normal", "hover", "focus", "disabled"]],
 		["button_pressed", "Button", ["pressed"]],
-		["button_primary", "PrimaryButton", ["normal", "hover", "focus"]],
+		["button", "SettingsButton", ["normal", "hover", "focus", "disabled"]],
+		["button_pressed", "SettingsButton", ["pressed"]],
+		["button_primary", "PrimaryButton", ["normal", "hover", "focus", "disabled"]],
+		["button_primary_pressed", "PrimaryButton", ["pressed"]],
+		["icon", "IconButton", ["normal", "hover", "focus", "disabled"]],
+		["icon_pressed", "IconButton", ["pressed"]],
 		["panel", "PanelContainer", ["panel"]],
 	]
 	for swap in swaps:
@@ -180,10 +209,12 @@ static func _sprite(key: String, copy_padding_from: StyleBox) -> StyleBoxTexture
 	var box := StyleBoxTexture.new()
 	box.texture = tex
 	var m: float = float(entry.get("margin", 16))
+	var mv: float = float(entry.get("margin_v", m))
 	box.texture_margin_left = m
 	box.texture_margin_right = m
-	box.texture_margin_top = m
-	box.texture_margin_bottom = m
+	box.texture_margin_top = mv
+	box.texture_margin_bottom = mv
+	box.modulate_color = entry.get("tint", Color.WHITE)
 	if copy_padding_from != null:
 		box.content_margin_left = copy_padding_from.content_margin_left
 		box.content_margin_right = copy_padding_from.content_margin_right
@@ -232,19 +263,3 @@ static func _button_style(t: Theme, type: String, face: Color, edge: Color,
 	t.set_color("font_pressed_color", type, text)
 	t.set_color("font_focus_color", type, text)
 	t.set_font_size("font_size", type, font_size)
-
-
-## A pause glyph, drawn rather than shipped as an image file.
-static func pause_icon(size: int = 48, color: Color = BROWN) -> ImageTexture:
-	var img := Image.create(size, size, false, Image.FORMAT_RGBA8)
-	img.fill(Color(0, 0, 0, 0))
-	var bar := int(size * 0.20)
-	var gap := int(size * 0.16)
-	var top := int(size * 0.16)
-	var bottom := size - top
-	var left := int(size * 0.5 - gap * 0.5) - bar
-	for y in range(top, bottom):
-		for x in range(bar):
-			img.set_pixel(left + x, y, color)
-			img.set_pixel(left + bar + gap + x, y, color)
-	return ImageTexture.create_from_image(img)

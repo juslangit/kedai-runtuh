@@ -1,0 +1,106 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/mamak_set.gd" id="1_set"]
+[ext_resource type="Texture2D" path="res://assets/art/bg_sky.jpg" id="2_sky"]
+[ext_resource type="Texture2D" path="res://assets/art/bg_street.png" id="3_street"]
+[ext_resource type="Texture2D" path="res://assets/art/bg_canopy.png" id="4_canopy"]
+[ext_resource type="Texture2D" path="res://assets/art/bg_foreground.png" id="5_fore"]
+[ext_resource type="Texture2D" path="res://assets/art/tex_marble.jpg" id="6_marble"]
+[ext_resource type="Shader" path="res://shaders/outline.gdshader" id="7_outline"]
+
+[sub_resource type="ShaderMaterial" id="Mat_outline"]
+render_priority = 0
+shader = ExtResource("7_outline")
+shader_parameter/outline_color = Color(0.16, 0.11, 0.08, 1)
+shader_parameter/thickness = 0.028
+
+[sub_resource type="CylinderMesh" id="Mesh_rim"]
+top_radius = 2.52
+bottom_radius = 2.45
+height = 0.18
+radial_segments = 64
+
+[sub_resource type="StandardMaterial3D" id="Mat_steel"]
+next_pass = SubResource("Mat_outline")
+albedo_color = Color(0.64, 0.67, 0.72, 1)
+roughness = 0.2
+diffuse_mode = 3
+specular_mode = 1
+
+[sub_resource type="CylinderMesh" id="Mesh_top"]
+top_radius = 2.46
+bottom_radius = 2.46
+height = 0.02
+radial_segments = 64
+
+[sub_resource type="StandardMaterial3D" id="Mat_marble"]
+albedo_texture = ExtResource("6_marble")
+roughness = 0.35
+diffuse_mode = 3
+specular_mode = 1
+uv1_scale = Vector3(0.35, 0.35, 0.35)
+uv1_triplanar = true
+
+[sub_resource type="CylinderMesh" id="Mesh_leg"]
+top_radius = 0.14
+bottom_radius = 0.14
+height = 3.2
+radial_segments = 16
+
+[sub_resource type="CylinderMesh" id="Mesh_foot"]
+top_radius = 0.2
+bottom_radius = 0.9
+height = 0.16
+radial_segments = 32
+
+[sub_resource type="StandardMaterial3D" id="Mat_leg"]
+next_pass = SubResource("Mat_outline")
+albedo_color = Color(0.2, 0.2, 0.22, 1)
+roughness = 0.4
+diffuse_mode = 3
+specular_mode = 1
+
+[node name="MamakSet" type="Node3D"]
+script = ExtResource("1_set")
+
+[node name="Sky" type="Sprite3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.6, -40)
+pixel_size = 0.0235
+texture = ExtResource("2_sky")
+
+[node name="Street" type="Sprite3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.1, -10)
+pixel_size = 0.0077
+texture = ExtResource("3_street")
+
+[node name="Canopy" type="Sprite3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 6, -1.5)
+pixel_size = 0.00303
+texture = ExtResource("4_canopy")
+
+[node name="Table" type="Node3D" parent="."]
+
+[node name="Rim" type="MeshInstance3D" parent="Table"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.09, 0)
+mesh = SubResource("Mesh_rim")
+surface_material_override/0 = SubResource("Mat_steel")
+
+[node name="Marble" type="MeshInstance3D" parent="Table"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.007, 0)
+mesh = SubResource("Mesh_top")
+surface_material_override/0 = SubResource("Mat_marble")
+
+[node name="Leg" type="MeshInstance3D" parent="Table"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.78, 0)
+mesh = SubResource("Mesh_leg")
+surface_material_override/0 = SubResource("Mat_leg")
+
+[node name="Foot" type="MeshInstance3D" parent="Table"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -3.3, 0)
+mesh = SubResource("Mesh_foot")
+surface_material_override/0 = SubResource("Mat_leg")
+
+[node name="Foreground" type="Sprite3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.07, 4)
+pixel_size = 0.001855
+texture = ExtResource("5_fore")

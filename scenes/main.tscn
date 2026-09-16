@@ -1,43 +1,21 @@
-[gd_scene load_steps=17 format=3]
+[gd_scene format=3]
 
 [ext_resource type="Script" path="res://scripts/game.gd" id="1_game"]
 [ext_resource type="Script" path="res://scripts/hook.gd" id="2_hook"]
-[ext_resource type="PackedScene" path="res://assets/models/kitchen/scene.gltf" id="3_kitchen"]
 [ext_resource type="Script" path="res://scripts/rope.gd" id="4_rope"]
-[ext_resource type="PackedScene" path="res://assets/models/table/scene.gltf" id="5_table"]
-[ext_resource type="Script" path="res://scripts/fit_model.gd" id="6_fit"]
 [ext_resource type="PackedScene" path="res://scenes/settings_panel.tscn" id="7_settings"]
+[ext_resource type="PackedScene" path="res://scenes/mamak_set.tscn" id="8_set"]
+[ext_resource type="Texture2D" path="res://assets/art/ui_badge.png" id="9_badge"]
 
 [sub_resource type="Environment" id="Env_1"]
 background_mode = 1
 background_color = Color(0.152941, 0.121569, 0.129412, 1)
 ambient_light_source = 2
-ambient_light_color = Color(0.929412, 0.831373, 0.717647, 1)
-ambient_light_energy = 0.85
-tonemap_mode = 2
-tonemap_white = 1.2
+ambient_light_color = Color(0.94, 0.95, 1, 1)
+ambient_light_energy = 0.6
 glow_enabled = true
 glow_intensity = 0.15
 glow_bloom = 0.05
-
-[sub_resource type="Gradient" id="Grad_wall"]
-offsets = PackedFloat32Array(0, 0.62, 1)
-colors = PackedColorArray(0.101961, 0.0784314, 0.0862745, 1, 0.2, 0.137255, 0.129412, 1, 0.376471, 0.231373, 0.168627, 1)
-
-[sub_resource type="GradientTexture2D" id="GradTex_wall"]
-gradient = SubResource("Grad_wall")
-width = 4
-height = 256
-fill_from = Vector2(0, 0)
-fill_to = Vector2(0, 1)
-
-[sub_resource type="StandardMaterial3D" id="Mat_wall"]
-shading_mode = 0
-albedo_texture = SubResource("GradTex_wall")
-
-[sub_resource type="PlaneMesh" id="Mesh_wall"]
-size = Vector2(60, 60)
-orientation = 2
 
 [sub_resource type="CylinderMesh" id="Mesh_pivot"]
 top_radius = 0.14
@@ -65,7 +43,7 @@ environment = SubResource("Env_1")
 [node name="Sun" type="DirectionalLight3D" parent="."]
 transform = Transform3D(0.866025, 0, 0.5, 0.383022, 0.642788, -0.663414, -0.321394, 0.766044, 0.55667, 0, 8, 0)
 light_color = Color(1, 0.929412, 0.815686, 1)
-light_energy = 2.1
+light_energy = 1.35
 shadow_enabled = true
 
 [node name="Fill" type="DirectionalLight3D" parent="."]
@@ -76,29 +54,13 @@ light_energy = 0.55
 [node name="CameraRig" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.6, 0)
 
-[node name="Backdrop" type="MeshInstance3D" parent="CameraRig"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -14)
-mesh = SubResource("Mesh_wall")
-material_override = SubResource("Mat_wall")
-
 [node name="Camera3D" type="Camera3D" parent="CameraRig"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 12)
 keep_aspect = 0
 current = true
 fov = 23.0
 
-[node name="Kitchen" type="Node3D" parent="."]
-transform = Transform3D(-6, 0, 0, 0, 6, 0, 0, 0, -6, 0, -3, 0)
-
-[node name="Room" parent="Kitchen" instance=ExtResource("3_kitchen")]
-
-[node name="TableModel" type="Node3D" parent="."]
-script = ExtResource("6_fit")
-target_width = 5.0
-target_height = 3.0
-target_top_y = 0.0
-
-[node name="Model" parent="TableModel" instance=ExtResource("5_table")]
+[node name="MamakSet" parent="." instance=ExtResource("8_set")]
 
 [node name="Table" type="StaticBody3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.25, 0)
@@ -138,39 +100,64 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="Scores" type="VBoxContainer" parent="UI/Hud"]
-offset_left = 56.0
-offset_top = 60.0
-offset_right = 560.0
-offset_bottom = 340.0
+[node name="Scores" type="Control" parent="UI/Hud"]
+layout_mode = 3
+anchors_preset = 0
+offset_left = 36.0
+offset_top = 44.0
+offset_right = 316.0
+offset_bottom = 400.0
 mouse_filter = 2
-theme_override_constants/separation = 0
 
-[node name="ScoreKey" type="Label" parent="UI/Hud/Scores"]
-layout_mode = 2
-theme_type_variation = &"HudKey"
-text = "SCORE"
+[node name="Badge" type="TextureRect" parent="UI/Hud/Scores"]
+layout_mode = 0
+offset_top = 20.0
+offset_right = 240.0
+offset_bottom = 260.0
+mouse_filter = 2
+texture = ExtResource("9_badge")
+expand_mode = 1
+stretch_mode = 5
 
-[node name="ScoreValue" type="Label" parent="UI/Hud/Scores"]
-layout_mode = 2
+[node name="ScoreValue" type="Label" parent="UI/Hud/Scores/Badge"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 theme_type_variation = &"HudValue"
 text = "0"
+horizontal_alignment = 1
+vertical_alignment = 1
 
-[node name="Gap" type="Control" parent="UI/Hud/Scores"]
-custom_minimum_size = Vector2(0, 16)
-layout_mode = 2
+[node name="ScoreKey" type="Label" parent="UI/Hud/Scores"]
+layout_mode = 0
+offset_right = 240.0
+offset_bottom = 44.0
 mouse_filter = 2
+theme_type_variation = &"HudKey"
+text = "SCORE"
+horizontal_alignment = 1
 
-[node name="BestKey" type="Label" parent="UI/Hud/Scores"]
+[node name="Best" type="HBoxContainer" parent="UI/Hud/Scores"]
+layout_mode = 0
+offset_top = 268.0
+offset_right = 240.0
+offset_bottom = 330.0
+mouse_filter = 2
+theme_override_constants/separation = 14
+alignment = 1
+
+[node name="BestKey" type="Label" parent="UI/Hud/Scores/Best"]
 layout_mode = 2
 theme_type_variation = &"HudKey"
 text = "BEST"
 
-[node name="BestValue" type="Label" parent="UI/Hud/Scores"]
+[node name="BestValue" type="Label" parent="UI/Hud/Scores/Best"]
 layout_mode = 2
-theme_type_variation = &"HudValueSmall"
+theme_type_variation = &"HudKey"
 text = "0"
-
 [node name="Flash" type="ColorRect" parent="UI/Hud"]
 anchors_preset = 15
 anchor_right = 1.0
@@ -186,15 +173,15 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -400.0
-offset_top = -260.0
-offset_right = 400.0
+offset_left = -500.0
+offset_top = -300.0
+offset_right = 500.0
 offset_bottom = -140.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 modulate = Color(1, 1, 1, 0)
-theme_type_variation = &"HudValue"
+theme_type_variation = &"Perfect"
 text = "PERFECT!"
 horizontal_alignment = 1
 vertical_alignment = 1
@@ -203,13 +190,12 @@ vertical_alignment = 1
 anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
-offset_left = -168.0
-offset_top = 60.0
-offset_right = -56.0
-offset_bottom = 172.0
+offset_left = -206.0
+offset_top = 56.0
+offset_right = -40.0
+offset_bottom = 222.0
 grow_horizontal = 0
 theme_type_variation = &"IconButton"
-
 [node name="Hint" type="Label" parent="UI/Hud"]
 anchors_preset = 12
 anchor_top = 1.0

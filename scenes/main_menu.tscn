@@ -1,40 +1,18 @@
-[gd_scene load_steps=12 format=3]
+[gd_scene format=3]
 
 [ext_resource type="Script" path="res://scripts/main_menu.gd" id="1_menu"]
-[ext_resource type="PackedScene" path="res://assets/models/kitchen/scene.gltf" id="2_kitchen"]
-[ext_resource type="PackedScene" path="res://assets/models/table/scene.gltf" id="3_table"]
-[ext_resource type="Script" path="res://scripts/fit_model.gd" id="4_fit"]
 [ext_resource type="PackedScene" path="res://scenes/settings_panel.tscn" id="5_settings"]
+[ext_resource type="PackedScene" path="res://scenes/mamak_set.tscn" id="6_set"]
+[ext_resource type="Texture2D" path="res://assets/art/logo.png" id="7_logo"]
 
 [sub_resource type="Environment" id="Env_menu"]
 background_mode = 1
 background_color = Color(0.152941, 0.121569, 0.129412, 1)
 ambient_light_source = 2
-ambient_light_color = Color(0.929412, 0.831373, 0.717647, 1)
-ambient_light_energy = 0.85
-tonemap_mode = 2
-tonemap_white = 1.2
+ambient_light_color = Color(0.94, 0.95, 1, 1)
+ambient_light_energy = 0.6
 glow_enabled = true
 glow_intensity = 0.15
-
-[sub_resource type="Gradient" id="Grad_menu"]
-offsets = PackedFloat32Array(0, 0.62, 1)
-colors = PackedColorArray(0.101961, 0.0784314, 0.0862745, 1, 0.2, 0.137255, 0.129412, 1, 0.376471, 0.231373, 0.168627, 1)
-
-[sub_resource type="GradientTexture2D" id="GradTex_menu"]
-gradient = SubResource("Grad_menu")
-width = 4
-height = 256
-fill_from = Vector2(0, 0)
-fill_to = Vector2(0, 1)
-
-[sub_resource type="StandardMaterial3D" id="Mat_menu_wall"]
-shading_mode = 0
-albedo_texture = SubResource("GradTex_menu")
-
-[sub_resource type="PlaneMesh" id="Mesh_menu_wall"]
-size = Vector2(60, 60)
-orientation = 2
 
 [sub_resource type="StyleBoxFlat" id="Scrim"]
 bg_color = Color(0.0784314, 0.054902, 0.0470588, 0.14)
@@ -48,7 +26,7 @@ environment = SubResource("Env_menu")
 [node name="Sun" type="DirectionalLight3D" parent="."]
 transform = Transform3D(0.866025, 0, 0.5, 0.383022, 0.642788, -0.663414, -0.321394, 0.766044, 0.55667, 0, 8, 0)
 light_color = Color(1, 0.929412, 0.815686, 1)
-light_energy = 2.1
+light_energy = 1.35
 shadow_enabled = true
 
 [node name="Fill" type="DirectionalLight3D" parent="."]
@@ -59,29 +37,13 @@ light_energy = 0.55
 [node name="CameraRig" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2, 0)
 
-[node name="Backdrop" type="MeshInstance3D" parent="CameraRig"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -14)
-mesh = SubResource("Mesh_menu_wall")
-material_override = SubResource("Mat_menu_wall")
-
 [node name="Camera3D" type="Camera3D" parent="CameraRig"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 12)
 keep_aspect = 0
 current = true
 fov = 23.0
 
-[node name="Kitchen" type="Node3D" parent="."]
-transform = Transform3D(-6, 0, 0, 0, 6, 0, 0, 0, -6, 0, -3, 0)
-
-[node name="Room" parent="Kitchen" instance=ExtResource("2_kitchen")]
-
-[node name="TableModel" type="Node3D" parent="."]
-script = ExtResource("4_fit")
-target_width = 5.0
-target_height = 3.0
-target_top_y = 0.0
-
-[node name="Model" parent="TableModel" instance=ExtResource("3_table")]
+[node name="MamakSet" parent="." instance=ExtResource("6_set")]
 
 [node name="UI" type="CanvasLayer" parent="."]
 
@@ -98,12 +60,12 @@ layout_mode = 2
 theme_override_constants/separation = 26
 alignment = 1
 
-[node name="Title" type="Label" parent="UI/Root/Layout"]
+[node name="Logo" type="TextureRect" parent="UI/Root/Layout"]
+custom_minimum_size = Vector2(0, 520)
 layout_mode = 2
-theme_type_variation = &"Title"
-text = "KEDAI RUNTUH"
-horizontal_alignment = 1
-
+texture = ExtResource("7_logo")
+expand_mode = 1
+stretch_mode = 5
 [node name="Subtitle" type="Label" parent="UI/Root/Layout"]
 layout_mode = 2
 theme_type_variation = &"Subtitle"

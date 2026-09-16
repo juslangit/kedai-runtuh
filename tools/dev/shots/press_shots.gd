@@ -25,7 +25,7 @@ func _ready() -> void:
 			await get_tree().process_frame
 			guard += 1
 			if main.state != 0: continue
-			var n := main.score
+			var n: int = main.score
 			if n in [3, 6, 9] and not taken.has(n) and main.preview.visible:
 				taken[n] = true
 				await _shot("0%d_tower_%d" % [taken.size() + 1, n])
