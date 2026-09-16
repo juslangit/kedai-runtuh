@@ -98,6 +98,22 @@ GALLERIES = [
         ("art/source/rejected/sky_v1.jpg",
          "A rejected first sky: the mockup's rope leaked in from the style reference, and a cloud grew into a stack of plates with eyes."),
     ]),
+    ("store", "The store listing (2026-09-16)",
+     "The Google Play feature graphic, composed from the game by tools/art/make_banner.py rather than "
+     "generated: OpenArt was asked for a banner twice and split it into two panels both times. The phone "
+     "in it is a real screenshot, rendered by tools/dev/shots/banner_shot.gd.", "wide", [
+        ("press/store_feature_graphic.png",
+         "The 1024x500 feature graphic: the KEDAI RUNTUH logo and 'stack it as high as you can' on the left, "
+         "a phone showing a ten-dish tower on the right, the blurred stall behind both."),
+    ]),
+    ("screens-tall-tower", "A tower worth showing (2026-09-16)",
+     "The ordinary press run tops out around four dishes, because a score is not a piece count - a perfect "
+     "landing is worth two, and the automated player lands dead centre nearly every time. Counting pieces "
+     "instead gets a tower that fills the frame.", "tall", [
+        ("press/08_banner_tower.png",
+         "Ten dishes stacked to the stall roof at score 18: cups, plates, a red tiffin tin and a doughnut, "
+         "each with its dark outline, with an eclair swinging in on the rope."),
+    ]),
     ("art-pieces", "The painted pieces",
      "Transparent pieces were generated on flat magenta and cut out by tools/art/process_art.py.", "wide", [
         ("art/source/street.jpg",
