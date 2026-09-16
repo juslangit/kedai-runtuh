@@ -51,7 +51,13 @@ func _ready() -> void:
 
 	print("--- credits are present (CC-BY requires them in the game) ---")
 	var body := panel.get_node("CreditsView/Center/Panel/Box/Body") as RichTextLabel
-	for who in ["Pollypipe", "Mumladze28", "Andrey 3D", "HoliznaCC0", "Kenney"]:
-		if who not in body.text: print("  MISSING credit: %s" % who)
-	print("  all required credits present: %s" % ("Pollypipe" in body.text and "Andrey 3D" in body.text))
+	# The kitchen and table models were replaced by the painted mamak stall on
+	# 2026-09-15, so their authors no longer need crediting. Lilita One is OFL.
+	var required := ["Pollypipe", "HoliznaCC0", "Kenney", "Lilita One"]
+	var missing := 0
+	for who in required:
+		if who not in body.text:
+			print("  MISSING credit: %s" % who)
+			missing += 1
+	print("  all required credits present: %s" % (missing == 0))
 	get_tree().quit()

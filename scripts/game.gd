@@ -109,8 +109,8 @@ var _recent: Array[String] = []
 @onready var camera_rig: Node3D = $CameraRig
 @onready var ui: CanvasLayer = $UI
 @onready var hud: Control = $UI/Hud
-@onready var score_label: Label = $UI/Hud/Scores/ScoreValue
-@onready var hud_best_label: Label = $UI/Hud/Scores/BestValue
+@onready var score_label: Label = $UI/Hud/Scores/Badge/ScoreValue
+@onready var hud_best_label: Label = $UI/Hud/Scores/Best/BestValue
 @onready var hint_label: Label = $UI/Hud/Hint
 @onready var pause_button: Button = $UI/Hud/Pause
 @onready var pause_menu: Control = $UI/PauseMenu
@@ -128,9 +128,11 @@ func _ready() -> void:
 	hud.theme = UITheme.get_theme()
 	pause_menu.theme = UITheme.get_theme()
 	game_over_panel.theme = UITheme.get_theme()
-	pause_button.icon = UITheme.pause_icon(52, UITheme.BROWN)
 
 	_prepare_models()
+	# the rope's ceiling mount gets the same cartoon shading as the food
+	for part in [$Pivot/Bracket, $Pivot/Ring]:
+		part.material_override = Toon.material(part.material_override)
 	best = SaveData.high_score
 	hud_best_label.text = str(best)
 	pause_menu.hide()
@@ -652,10 +654,11 @@ func _apply_visual(target: MeshInstance3D, item: Dictionary) -> void:
 		target.mesh = v.mesh
 		target.transform = v.transform
 		target.material_override = null
+		Toon.apply(target)
 	else:
 		target.mesh = _primitive_mesh(item)
 		target.transform = Transform3D.IDENTITY
-		target.material_override = _make_material(item.color)
+		target.material_override = Toon.material(_make_material(item.color))
 
 
 ## Fallback look, used when an item has no model or the model could not be found.

@@ -13,21 +13,23 @@ listing, itch.io page, or an in-game credits screen.
 
 Used for: pinggan, mangkuk, cawan, kotak bungkus, telur mata, kuih keria.
 
-> This work is based on ["Low Poly Kitchen"](https://sketchfab.com/3d-models/low-poly-kitchen-292f9c3a654d4e9a944252bb99342935)
-> by [Mumladze28](https://sketchfab.com/Mumladze28) licensed under
-> [CC-BY-4.0](http://creativecommons.org/licenses/by/4.0/)
+The kitchen ("Low Poly Kitchen" by Mumladze28) and the wooden table ("Wooden table
+(low poly)" by Andrey 3D), both CC-BY-4.0, were used until 2026-09-15 and are no
+longer part of the game.
 
-Used for: the kitchen the game is played in.
+## Art
 
-> This work is based on ["Wooden table (low poly)"](https://sketchfab.com/3d-models/wooden-table-low-poly-ab96499ddb3b4bd7bc739e4f99dad409)
-> by [Andrey 3D](https://sketchfab.com/Andrey3Ds) licensed under
-> [CC-BY-4.0](http://creativecommons.org/licenses/by/4.0/)
+The mamak stall, sky, buttons, panel, score badge, pause button, logo and app icon
+were made with [OpenArt](https://openart.ai) for this game. The originals are in
+`art/source/`.
 
-Used for: the table the tower is built on.
+## Font
+
+**Lilita One** by Juan Montoreano, licensed under the
+[SIL Open Font License 1.1](assets/fonts/OFL.txt).
 
 Original licence texts as downloaded are kept next to each model, at
-`assets/models/cafe_props/license.txt`, `assets/models/kitchen/license.txt` and
-`assets/models/table/license.txt`.
+`assets/models/cafe_props/license.txt`.
 
 ## Audio
 

@@ -51,25 +51,44 @@ Everything — button colours, corner radius, font sizes, panel style — is in
 that file.
 
 Buttons pick a look with `theme_type_variation` on the node:
-`PrimaryButton` for the big red one, `IconButton` for the small round one, and
-nothing at all for the ordinary cream one.
+`PrimaryButton` for the big orange one, `IconButton` for the round pause button,
+and nothing at all for the ordinary cream one. The font is Lilita One.
 
-### Swapping in a bought UI art pack
+### The painted art
 
-Every button and panel is currently **drawn by Godot** — rounded boxes, no image
-files. To use artwork instead (the [Cozy UI Pack](https://dobo-ui.itch.io/cozy-ui),
-for example):
+The mamak stall, the sky, the buttons, the panel, the score badge, the pause button,
+the logo and the app icon are paintings made with OpenArt, in the style of concept
+mockup C in `art/concepts/`. The food is still the Sketchfab models, cel-shaded by
+`scripts/toon.gd` so it sits in the painting.
 
-1. Buy and download the pack, and unzip the PNGs into `assets/ui/`.
-2. Open `scripts/ui_theme.gd` and fill in the paths in the `SPRITES` block near
-   the top — one for the ordinary button, one for its pressed state, one for the
-   primary button, one for the panel.
-3. Set each `margin` to the 9-slice border of that PNG: how many pixels at each
-   edge are frame that must not stretch. For 64px pieces this is usually 16–20.
+The stall is built like a film set with matte-painting cards, in
+`scenes/mamak_set.tscn`. Each card stands at a different distance from the camera:
 
-Anything left as `""` keeps the drawn version, so the game always runs and you can
-swap one piece at a time. Padding is carried over from the drawn style being
-replaced, so the layout does not shift when the art goes in.
+| Card | Distance | Behaviour |
+|---|---|---|
+| Sky | furthest | follows the camera, so there is always sky |
+| Street (stall, shophouses, palms) | far | stays put, so it scrolls away as you climb |
+| Canopy (the zinc roof) | just behind the tower | the tower climbs up past it |
+| Foreground (stools) | in front of the table | closest, so it moves fastest |
+
+To move or resize a card, move its node or change its `pixel_size` in the editor.
+
+**To replace a painting:** put the new picture in `art/source/` under the same name
+and run
+
+```bash
+python3 tools/art/process_art.py
+```
+
+The pieces with a see-through background were painted on flat magenta; the script
+cuts it out, trims and resizes everything into `assets/art/`, and also writes the
+three app icon sizes. It needs Pillow and numpy
+(`python3 -m pip install --user pillow numpy`).
+
+**Buttons and panels:** the `SPRITES` block at the top of `scripts/ui_theme.gd` maps
+each piece to its painting. Clear a path to `""` and that piece goes back to a
+rounded box drawn by Godot. `margin` is the 9-slice border: how many pixels at each
+edge must not stretch.
 
 ## The two ways to lose
 
@@ -94,22 +113,29 @@ the game.
 ```
 project.godot         engine settings — portrait size, gravity, autoload
 scenes/main_menu.tscn the title screen
-scenes/main.tscn      the game: camera, light, kitchen, table, hook, UI
+scenes/main.tscn      the game: camera, light, hook, rope, UI
+scenes/mamak_set.tscn the painted stall and the marble table, used by both scenes
 scripts/game.gd       the whole game, and the list of food
 scripts/hook.gd       the pendulum the food hangs from
 scripts/rope.gd       the rope: simulated, decoration only
-scripts/fit_model.gd  scales a decorative model to line up with the game
+scripts/toon.gd       cel shading and outlines on the food
+shaders/              the outline shader
+scripts/fit_model.gd  scaled the old kitchen and table models (no longer used)
 scripts/save_data.gd  autoload: high score and sound, kept between sessions
-scripts/ui_theme.gd   every colour and size in the UI, in one place
+scripts/ui_theme.gd   every colour, size, font and painted button in the UI, in one place
 scripts/main_menu.gd  the title screen
-assets/models/        Sketchfab models
+assets/models/        Sketchfab models (only cafe_props is used)
+assets/art/           the cut-out paintings the game uses
+assets/fonts/         Lilita One, with its licence
 assets/audio/         CC0 music and sound effects
 tools/dev/checks/     headless scenes that play or test the game (not shipped)
 tools/dev/shots/      scenes that render screenshots (not shipped)
-tools/dev/icon/       draws icon.png, icon_192.png and icon_432.png
+tools/art/            process_art.py: paintings in art/source/ -> assets/art/ and the icons
+tools/dev/icon/       the OLD drawn icon — running it overwrites the painted one
 tools/docs/           builds docs/index.html, the project record
 press/                portfolio stills, for BEHANCE.md
-art/concepts/         art style concepts
+art/source/           OpenArt originals (rejected/ holds first attempts)
+art/concepts/         the three style mockups; C was chosen
 build-android.sh      builds build/kedai-runtuh.apk
 ```
 
@@ -248,7 +274,7 @@ Other development scenes, all run the same way:
 | `shots/press_shots.tscn` | Renders the portfolio stills in `press/` |
 | `shots/menu_shots.tscn` | Just the main menu, settings and credits, for iterating quickly |
 | `shots/ui_shots.tscn` | Screenshots of the menu, HUD, pause menu and game over, to `build/shots/` |
-| `icon/make_icon.tscn` | Redraws the app icon at all three sizes |
+| `icon/make_icon.tscn` | The old drawn icon. Do not run it: the painted icon comes from `tools/art/process_art.py` |
 
 All of them live in `tools/dev/` and run as `res://tools/dev/<folder>/<name>.tscn`.
 The Android export leaves `tools/` out, and `press/`, `docs/` and `art/` each hold a
@@ -337,5 +363,6 @@ difference. Worth checking whenever a downloaded model goes in.
 ## Assets
 
 The food models are from Sketchfab under CC-BY-4.0 — commercial use is allowed but
-the author must be credited. See [CREDITS.md](CREDITS.md); that credit has to
+the author must be credited. The stall, UI, logo and icon were made with OpenArt, and
+the font is Lilita One under the SIL Open Font License. See [CREDITS.md](CREDITS.md); that credit has to
 appear on any store or itch.io page too.

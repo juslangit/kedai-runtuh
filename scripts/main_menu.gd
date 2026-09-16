@@ -1,5 +1,5 @@
 extends Node3D
-## The title screen. The kitchen behind it is the real 3D scene, not a picture,
+## The title screen. The mamak stall behind it is the same set the game uses,
 ## so the menu and the game look like the same place.
 
 @onready var ui: Control = $UI/Root

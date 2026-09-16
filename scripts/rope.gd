@@ -38,6 +38,8 @@ func _ready() -> void:
 	var mat := StandardMaterial3D.new()
 	mat.albedo_texture = _make_rope_texture()
 	mat.roughness = 0.95
+	# Flat cartoon shading, to match the food and the painted background.
+	mat.diffuse_mode = BaseMaterial3D.DIFFUSE_TOON
 	# The texture is one turn of the twist. Repeating it along the segment is
 	# what makes the strands wind; the diagonal lines up across repeats because
 	# it advances exactly one turn per tile.

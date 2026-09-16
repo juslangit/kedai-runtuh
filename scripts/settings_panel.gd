@@ -9,9 +9,11 @@ extends Control
 ## player looks — so it belongs in the game.
 const CREDITS := """[b]3D models[/b]
 "Stylized Food & Cafe Props Pack" by Pollypipe
-"Low Poly Kitchen" by Mumladze28
-"Wooden table (low poly)" by Andrey 3D
-all licensed under CC-BY-4.0
+licensed under CC-BY-4.0
+
+[b]Art[/b]
+Mamak stall, buttons and logo made with OpenArt
+Font: Lilita One by Juan Montoreano, SIL Open Font License
 
 [b]Sound[/b]
 Music: "Ramen" by HoliznaCC0
