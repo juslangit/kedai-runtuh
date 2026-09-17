@@ -265,13 +265,13 @@ FONTS = "https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&family=Je
 # The kedai palette from scripts/ui_theme.gd: cream panels, brown text, the red PLAY button.
 # Fredoka echoes the chunky rounded capitals of the in-game title and buttons; Open Sans is the
 # font the game itself renders in (Godot's default).
-LIGHT = """--ground: #F6EFE1; --surface: #FCF8EF; --ink: #3A2A20; --muted: #6B5340; --line: #E2D0AE;
-  --accent: #9C4230; --accent-soft: #EADBBE; --flag: #B84F37; --flag-ink: #FFF9F0; --done: #4A6E2A;
+LIGHT = """--ground: #FAF7F2; --surface: #FFFFFF; --ink: #2B2622; --muted: #6B6259; --line: #E7E1D8;
+  --accent: #2F6BB0; --accent-soft: #D6E6FA; --flag: #FFEEC9; --flag-ink: #A97B12; --done: #2F7A5C;
   --display: "Fredoka", "Arial Rounded MT Bold", "Helvetica Neue", Arial, sans-serif;
   --body: "Open Sans", "Helvetica Neue", Arial, sans-serif; --mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
   --heading-case: uppercase;"""
-DARK = """--ground: #1D1511; --surface: #281D17; --ink: #F6EFE1; --muted: #C8B290; --line: #45352A;
-  --accent: #EE8D70; --accent-soft: #3D2C22; --flag: #B84F37; --flag-ink: #FFF9F0; --done: #A3C77F;"""
+DARK = """--ground: #FAF7F2; --surface: #FFFFFF; --ink: #2B2622; --muted: #6B6259; --line: #E7E1D8;
+  --accent: #2F6BB0; --accent-soft: #D6E6FA; --flag: #FFEEC9; --flag-ink: #A97B12; --done: #2F7A5C;"""
 
 
 # ============================== engine: the same in every game ==============================
@@ -721,8 +721,8 @@ TEMPLATE = """<!doctype html>
 <link rel="stylesheet" href="{{FONTS}}">
 <style>
 :root { {{LIGHT}} color-scheme: light; }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { {{DARK}} color-scheme: dark; } }
-:root[data-theme="dark"] { {{DARK}} color-scheme: dark; }
+@media (prefers-color-scheme: light) { :root:not([data-theme="light"]) { {{DARK}} color-scheme: light; } }
+:root[data-theme="dark"] { {{DARK}} color-scheme: light; }
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
