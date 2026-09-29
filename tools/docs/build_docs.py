@@ -86,6 +86,33 @@ GALLERIES = [
         ("icon.png",
          "The new app icon, painted with OpenArt: a stack of plates, a bun, an egg and teh tarik on the marble table, a doughnut on the rope, under the zinc roof."),
     ]),
+    ("screens-art-pass-run", "A run in the painted stall, moment by moment (2026-09-30)",
+     "The same run followed from the first dish to the game over, captured from the running game by a "
+     "scratch copy of the press-shot scene. The camera climbs with the tower, so the stall slides down the "
+     "frame and the palm tops come into view as the score goes up.", "tall", [
+        ("docs/shots/art-pass/run-first-hang.jpg",
+         "Score 0, the first dish: a service bell hangs low on the rope over the empty marble table, and TAP TO DROP waits at the bottom. Best 40 is shown under the score badge from the start."),
+        ("docs/shots/art-pass/run-first-perfect.jpg",
+         "Score 3 after two drops: the fried egg landed dead centre on the bell, so PERFECT! pops up and it counts double. The next dish, a little plant, is already swinging in."),
+        ("docs/shots/art-pass/run-three-dishes.jpg",
+         "Score 5 with three dishes stacked, bell, egg and plant, and a takeaway cup on the rope. The camera has risen a step, so the stall roof now sits lower in the frame."),
+        ("docs/shots/art-pass/run-perfect-at-eleven.jpg",
+         "Score 11: another PERFECT, with a sauce bowl swinging above a cup, plant, egg and bell. The swing is faster now, because it speeds up with every dish that stays on."),
+        ("docs/shots/art-pass/run-missed-bowl.jpg",
+         "The miss: the bowl was let go at the far end of the swing and landed on the table beside the tower instead of on it. The rope is empty, time has slowed, and the run is over."),
+        ("docs/shots/art-pass/gameover-missed.jpg",
+         "MISSED! at 11 against a best of 40: no NEW BEST! line this time, just the two scores, PLAY AGAIN and MAIN MENU on the teal-rimmed panel."),
+        ("docs/shots/art-pass/gameover-toppled.jpg",
+         "TOPPLED!, the other way a run ends: a dish fell off the table altogether. Score 7, best 40, with a doughnut and a bun left on the table behind the panel."),
+    ]),
+    ("screens-art-pass-settings", "Settings, switched off and about to erase (2026-09-30)",
+     "Two states of the settings panel the earlier pictures did not show. Every switch is saved the moment "
+     "it is tapped, and erasing the best score takes two taps so it cannot happen by accident.", "tall", [
+        ("docs/shots/art-pass/settings-all-off.jpg",
+         "Music, sound and vibration all OFF. Each is its own switch: music and sound mute separate audio buses, so a player can keep the effects and lose the music."),
+        ("docs/shots/art-pass/settings-erase-armed.jpg",
+         "After one tap on ERASE BEST SCORE the button changes to TAP AGAIN TO ERASE. Only a second tap sets the best back to 0; closing the panel disarms it."),
+    ]),
     ("art-concepts", "How the look was chosen: three mockups",
      "A gameplay screenshot restyled three ways with OpenArt (Seedream 4.5, image to image). Luqman chose C, "
      "and every production painting used it as the style reference.", "tall", [
@@ -124,6 +151,48 @@ GALLERIES = [
          "Pill buttons and the panel. The orange pill's hard orange-to-red line was fixed by mirroring its left half."),
         ("assets/art/logo.png",
          "The KEDAI RUNTUH logo from GPT Image 2, cut out: yellow letters, brown outline, a teh tarik glass tipping off the last letter."),
+    ]),
+    ("screens-history", "How it changed: the game at five points on 2026-09-07",
+     "Kedai Runtuh was built in one day, one commit per session. Each of these commits was checked out on its "
+     "own (git worktree), opened in Godot and played by a small scratch scene that drops six dishes, so these "
+     "are the old versions actually running, not mockups. They are in the order they were made.", "tall", [
+        ("docs/shots/history/history-2026-09-07-1-grey-box-start.png",
+         "c76ea5b, the grey-box prototype: a yellow slab hanging over a dark block, a big score and TAP to drop. No food, no kitchen, just the question: is dropping things fun?"),
+        ("docs/shots/history/history-2026-09-07-1-grey-box-tower.png",
+         "The same prototype after five drops: coloured boxes standing in a wobbly stack. This is the version that passed the is-it-fun gate."),
+        ("docs/shots/history/history-2026-09-07-2-real-food-start.png",
+         "b5bb6c3, real 3D food: the blocks become a plate from the Sketchfab food pack, hanging on a straight rod over a brown table, still in the dark."),
+        ("docs/shots/history/history-2026-09-07-2-real-food-missed.png",
+         "Game over in that version, still in Malay: TERSASAR! (missed), 2 tersusun (2 stacked), terbaik 59 and SUSUN LAGI. The English translation came four commits later."),
+        ("docs/shots/history/history-2026-09-07-3-kitchen-rope.png",
+         "2ec2888, the kitchen and the soft rope: the pastel Low Poly Kitchen behind a real wooden table, and a curved rope hanging from a fixed pivot instead of a rod."),
+        ("docs/shots/history/history-2026-09-07-4-menus-malay.png",
+         "a170c35, the first main menu, in Malay: MAIN (play), BUNYI ON (sound), KELUAR (quit) and TERBAIK 59 under the KEDAI RUNTUH title, over the kitchen."),
+        ("docs/shots/history/history-2026-09-07-4-hud-malay.png",
+         "The first proper HUD in the same commit: SKOR and TERBAIK top left, a pause button top right, and a twisted rope carrying a white box over a stack of plates, cups and red tins."),
+        ("docs/shots/history/history-2026-09-07-5-menu-english.png",
+         "3dc9dd1, later the same day: the menu now reads PLAY, SOUND ON and QUIT, with BEST 59 and the tagline stack it as high as you can. Sixteen dishes and haptics arrived in this commit."),
+        ("docs/shots/history/history-2026-09-07-5-sixteen-items.png",
+         "Score 11 in that version: cups, a pink doughnut and plates stacked on the wooden table, and a service bell on the rope. This is the look that stayed until the art pass on 2026-09-15."),
+    ]),
+    ("how-it-works", "How it works",
+     "Three diagrams, drawn with mermaid and turned into pictures: what happens to one dish from the tap to the "
+     "score, how the scenes and scripts connect, and how the art, sound and code become an APK and this record.",
+     "wide", [
+        ("docs/shots/diagrams/diagram-one-drop.png",
+         "One drop, start to finish. The dish swings until you tap, falls as a real physics object, and is judged once it has been still for 0.3 seconds: on top of the tower scores 1, within 0.28 of the centre below scores 2 (PERFECT!), anywhere else is MISSED!. A dish falling off the table at any moment is TOPPLED!."),
+        ("docs/shots/diagrams/diagram-how-the-parts-connect.png",
+         "How the parts connect. The two screens share one settings panel; inside the game, game.gd runs the rules and drives the hook, the rope, the painted stall and the cel shading; SaveData and Audio are always running, so a best score or a muted switch survives every scene change."),
+        ("docs/shots/diagrams/diagram-from-art-to-apk.png",
+         "From art to APK. OpenArt paintings are cut out by process_art.py, Sketchfab models are fitted to their physics boxes, CC0 sound goes in as it is; the Godot project then feeds the headless checks (numbers), the windowed shot scenes (pictures) and build-android.sh (the APK)."),
+    ]),
+    ("checks-running", "The checks, running (2026-09-30)",
+     "Real output from the headless checks in tools/dev/checks/, run with no window. Each one measures a single "
+     "claim and prints numbers. The checks that touch the save file put it back the way they found it.", "wide", [
+        ("docs/shots/checks/checks-save-settings.png",
+         "persist and settings_check: a best score is kept only when it is beaten, survives a reload from disk and shows up in a new game's HUD; every switch reaches its audio bus and survives a reload; erase needs two taps; the credits the CC-BY licence requires are in the game."),
+        ("docs/shots/checks/checks-sound-bot-perfect-wake.png",
+         "audio_check, autoplay, perfect_check and wake_check: every sound file is present and the music loops; a bot plays a whole run with no window (score 27, still standing); a fair aim lands a PERFECT about half the time (9 of 19); and a sleeping tower still wakes when a dish lands on it."),
     ]),
     ("screens-run", "Before the art pass: a run, from the hanging tray to the fall",
      "The game as it looked until 2026-09-15, in the 3D kitchen. Moments from several runs, in the order a run goes. The camera rises with the tower, and the "
@@ -192,6 +261,8 @@ PIPELINE = [
      "tools/dev/shots/press_shots.gd, press/, BEHANCE.md"),
     ("Art pass", "Three OpenArt mockups, one chosen, then painted stall layers, UI pieces, logo and icon; cut out by script, cel-shaded food to match.",
      "art/, tools/art/process_art.py, scenes/mamak_set.tscn, scripts/toon.gd"),
+    ("Record pictures", "Screens captured from the running game, old commits run from their own git worktree, diagrams drawn in mermaid, check output rendered as a terminal.",
+     "docs/shots/"),
     ("Project record", "This page, rebuilt from the notes, the screenshots and git whenever the game changes.",
      "tools/docs/build_docs.py, docs/"),
 ]
@@ -209,6 +280,8 @@ TOOLS = [
     ("Behance", "Where the portfolio post is meant to go; `BEHANCE.md` holds the draft and `press/` the stills."),
     ("OpenArt", "The painted mamak stall, sky, UI pieces, logo and app icon, and the three style mockups. Seedream 4.5 for paintings, GPT Image 2 for the lettering; 291 credits on 2026-09-15."),
     ("Python, Pillow and numpy", "tools/art/process_art.py: cuts the magenta out of the paintings and resizes them for a phone."),
+    ("mermaid-cli", "Draws the How it works diagrams from plain text (`npx -y @mermaid-js/mermaid-cli`) and saves them as pictures for this page."),
+    ("git worktree", "Checks out an old commit in a separate folder, so an earlier version of the game can be opened and captured without touching the current one."),
     ("Knowledge base", "The project notes this page is built from, kept outside the repo in `~/.claude/knowledge/projects/kedai-runtuh/`."),
 ]
 
