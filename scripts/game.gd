@@ -125,6 +125,10 @@ func _ready() -> void:
 	# closed. _process bails out immediately when paused, so nothing moves.
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	ui.process_mode = Node.PROCESS_MODE_ALWAYS
+	# The hook and rope move themselves, so they would inherit ALWAYS from this node
+	# and keep swinging behind the pause menu — the food sliding off a frozen rope.
+	hook.process_mode = Node.PROCESS_MODE_PAUSABLE
+	rope.process_mode = Node.PROCESS_MODE_PAUSABLE
 	hud.theme = UITheme.get_theme()
 	pause_menu.theme = UITheme.get_theme()
 	game_over_panel.theme = UITheme.get_theme()
@@ -160,7 +164,12 @@ func _unhandled_input(event: InputEvent) -> void:
 	# Escape on desktop, the back button on Android.
 	if event.is_action_pressed("ui_cancel"):
 		if get_tree().paused:
-			_resume()
+			# Back out one screen at a time: Settings opened from the pause menu
+			# closes back to the pause menu, and the game stays paused.
+			if settings_panel.visible:
+				settings_panel.close()
+			else:
+				_resume()
 		elif state != State.OVER:
 			_pause()
 		get_viewport().set_input_as_handled()
